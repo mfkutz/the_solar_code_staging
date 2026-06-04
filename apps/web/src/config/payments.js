@@ -7,9 +7,11 @@
 // Stripe's "after payment" redirect (set to /codigo/informe) brings them back.
 
 export const PAYMENT_LINKS = {
-  // TEST-mode link. When going Live, create the equivalent link in Live mode
-  // and replace this URL with the live one (https://buy.stripe.com/...).
-  fullReport: 'https://buy.stripe.com/test_00w3cw9Cg6KW3s86zia3u00',
+  // TEST-mode link whose Stripe "after payment" redirect points at the staging
+  // Vercel URL (…vercel.app/codigo/informe), so the full pay→report flow can be
+  // tested on staging. When going Live, create the equivalent link in Live mode
+  // (redirecting to https://thesolarcode.com/codigo/informe) and replace this.
+  fullReport: 'https://buy.stripe.com/test_8x200keWA3yK6Eke1Ka3u01',
 };
 
 export const PRICES = {
