@@ -84,6 +84,12 @@ const ReportPage = () => {
       </Helmet>
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Branded header — printed PDF only */}
+        <div className="print-only print-header">
+          <span className="brand">THE SOLAR CODE</span>
+          <span className="url">thesolarcode.com</span>
+        </div>
+
         {/* Header / actions (hidden in print) */}
         <div className="flex items-center justify-between mb-8 no-print">
           <span className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-primary border border-primary/40 rounded-full px-3 py-1">
@@ -160,6 +166,11 @@ const ReportPage = () => {
           <Button asChild variant="ghost">
             <Link to="/#discover">{t('common.back')}</Link>
           </Button>
+        </div>
+
+        {/* Branded footer — printed PDF only */}
+        <div className="print-only print-footer">
+          The Solar Code · Remember your frequency, activate your inner Sun · thesolarcode.com
         </div>
       </div>
     </div>

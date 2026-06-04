@@ -100,12 +100,59 @@
   }
 }
 
-/* Print styles for the downloadable PDF (Save as PDF from the print dialog). */
+/* Shown only when printing (the branded PDF header/footer). */
+.print-only {
+  display: none;
+}
+
+/* Print styles for the downloadable PDF (Save as PDF from the print dialog).
+   We re-map the theme variables to a light, document-style palette so the whole
+   report becomes a clean printable page instead of the dark on-screen theme. */
 @media print {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 12% 14%;
+    --primary: 38 70% 40%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 44 56% 97%;
+    --secondary-foreground: 240 12% 14%;
+    --accent: 38 70% 45%;
+    --accent-foreground: 0 0% 100%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 12% 14%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 240 6% 42%;
+    --border: 240 10% 86%;
+    --ring: 38 70% 40%;
+  }
+
+  @page {
+    margin: 16mm 15mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  /* Force colors/backgrounds to actually render in the PDF. */
+  *,
+  *::before,
+  *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+  }
+
   header,
   footer,
   .no-print {
     display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
   }
 
   .report-page {
@@ -115,11 +162,38 @@
 
   .report-section {
     break-inside: avoid;
-    box-shadow: none !important;
-    border-color: #e5e5e5 !important;
+    border: 1px solid hsl(var(--border)) !important;
+    border-radius: 12px;
   }
 
-  body {
-    background: #fff !important;
+  /* Branded header/footer for the printed document. */
+  .print-header {
+    display: flex !important;
+    align-items: baseline;
+    justify-content: space-between;
+    border-bottom: 2px solid hsl(var(--primary));
+    padding-bottom: 10px;
+    margin-bottom: 28px;
+  }
+
+  .print-header .brand {
+    font-family: "Playfair Display", serif;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.04em;
+    color: hsl(var(--primary));
+  }
+
+  .print-header .url,
+  .print-footer {
+    font-size: 11px;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .print-footer {
+    border-top: 1px solid hsl(var(--border));
+    margin-top: 28px;
+    padding-top: 10px;
+    text-align: center;
   }
 }
