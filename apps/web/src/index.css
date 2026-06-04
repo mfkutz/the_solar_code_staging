@@ -1,0 +1,125 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 10% 3.9%;
+    --foreground: 45 100% 95%;
+    --primary: 45 93% 58%;
+    --primary-foreground: 240 10% 3.9%;
+    --secondary: 240 60% 15%;
+    --secondary-foreground: 45 100% 95%;
+    --accent: 45 100% 65%;
+    --accent-foreground: 240 10% 3.9%;
+    --card: 240 10% 8%;
+    --card-foreground: 45 100% 95%;
+    --muted: 240 10% 12%;
+    --muted-foreground: 45 20% 70%;
+    --border: 45 40% 40%;
+    --input: 240 10% 12%;
+    --ring: 45 93% 58%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --popover: 240 10% 8%;
+    --popover-foreground: 45 100% 95%;
+    --radius: 0.75rem;
+    --sidebar-background: 240 10% 8%;
+    --sidebar-foreground: 45 100% 95%;
+    --sidebar-primary: 45 93% 58%;
+    --sidebar-primary-foreground: 240 10% 3.9%;
+    --sidebar-accent: 240 10% 12%;
+    --sidebar-accent-foreground: 45 100% 95%;
+    --sidebar-border: 45 40% 40%;
+    --sidebar-ring: 45 93% 58%;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 45 100% 95%;
+    --primary: 45 93% 58%;
+    --primary-foreground: 240 10% 3.9%;
+    --secondary: 240 60% 15%;
+    --secondary-foreground: 45 100% 95%;
+    --accent: 45 100% 65%;
+    --accent-foreground: 240 10% 3.9%;
+    --card: 240 10% 8%;
+    --card-foreground: 45 100% 95%;
+    --muted: 240 10% 12%;
+    --muted-foreground: 45 20% 70%;
+    --border: 45 40% 40%;
+    --input: 240 10% 12%;
+    --ring: 45 93% 58%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --popover: 240 10% 8%;
+    --popover-foreground: 45 100% 95%;
+    --sidebar-background: 240 10% 8%;
+    --sidebar-foreground: 45 100% 95%;
+    --sidebar-primary: 45 93% 58%;
+    --sidebar-primary-foreground: 240 10% 3.9%;
+    --sidebar-accent: 240 10% 12%;
+    --sidebar-accent-foreground: 45 100% 95%;
+    --sidebar-border: 45 40% 40%;
+    --sidebar-ring: 45 93% 58%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: "DM Sans", sans-serif;
+    overflow-x: clip;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Playfair Display", serif;
+    text-wrap: balance;
+  }
+}
+
+@layer utilities {
+  .cosmic-glow {
+    box-shadow: 0 0 40px rgba(234, 179, 8, 0.15);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 20px rgba(234, 179, 8, 0.3);
+  }
+
+  .cosmic-border {
+    border-image: linear-gradient(135deg, hsl(var(--primary)), transparent) 1;
+  }
+}
+
+/* Print styles for the downloadable PDF (Save as PDF from the print dialog). */
+@media print {
+  header,
+  footer,
+  .no-print {
+    display: none !important;
+  }
+
+  .report-page {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  .report-section {
+    break-inside: avoid;
+    box-shadow: none !important;
+    border-color: #e5e5e5 !important;
+  }
+
+  body {
+    background: #fff !important;
+  }
+}
