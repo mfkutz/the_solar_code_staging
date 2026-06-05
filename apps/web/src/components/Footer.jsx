@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sun, ExternalLink } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nProvider.jsx';
+import { APP_VERSION, APP_COMMIT, BUILD_DATE } from '@/config/version.js';
 
 const Footer = () => {
   const { t } = useI18n();
@@ -66,6 +67,11 @@ const Footer = () => {
             </a>
           </div>
         </div>
+
+        {/* Build / version stamp — lets technical visitors see what's deployed. */}
+        <p className="mt-6 text-center text-xs opacity-40 font-mono">
+          v{APP_VERSION} · {BUILD_DATE} · {APP_COMMIT}
+        </p>
       </div>
     </footer>
   );

@@ -8,11 +8,25 @@ import iframeRouteRestorationPlugin from './plugins/vite-plugin-iframe-route-res
 import pocketbaseAuthPlugin from './plugins/vite-plugin-pocketbase-auth.js';
 
 import { readFileSync } from 'node:fs';
+import { execSync } from 'node:child_process';
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'));
 const allDeps = Object.keys(pkg.dependencies || {});
 
 const isDev = process.env.NODE_ENV !== 'production';
+
+// Build metadata shown in the footer so people can tell which version is live.
+function gitCommit() {
+	if (process.env.VERCEL_GIT_COMMIT_SHA) return process.env.VERCEL_GIT_COMMIT_SHA.slice(0, 7);
+	try {
+		return execSync('git rev-parse --short HEAD').toString().trim();
+	} catch {
+		return 'dev';
+	}
+}
+const APP_VERSION = pkg.version;
+const APP_COMMIT = gitCommit();
+const BUILD_DATE = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 
 const configHorizonsViteErrorHandler = `
 const observer = new MutationObserver((mutations) => {
@@ -285,6 +299,11 @@ logger.error = (msg, options) => {
 }
 
 export default defineConfig({
+	define: {
+		__APP_VERSION__: JSON.stringify(APP_VERSION),
+		__APP_COMMIT__: JSON.stringify(APP_COMMIT),
+		__BUILD_DATE__: JSON.stringify(BUILD_DATE),
+	},
 	optimizeDeps: {
 		include: allDeps,
 	},

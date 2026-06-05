@@ -12,7 +12,15 @@ export default [
 			ecmaVersion: 'latest',
 			sourceType: 'module',
 			parserOptions: { ecmaFeatures: { jsx: true } },
-			globals: { ...globals.browser, React: 'readonly', Intl: 'readonly' },
+			globals: {
+				...globals.browser,
+				React: 'readonly',
+				Intl: 'readonly',
+				// Build-time constants injected by Vite `define` (see vite.config.js).
+				__APP_VERSION__: 'readonly',
+				__APP_COMMIT__: 'readonly',
+				__BUILD_DATE__: 'readonly',
+			},
 		},
 		settings: {
 			react: { version: 'detect' },
