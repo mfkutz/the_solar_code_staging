@@ -40,6 +40,17 @@ check('2024 animal', c.animal.name, 'Dragon');
 check('2024 element', c.element.name, 'Wood');
 check('2024 polarity', c.polarity, 'yang');
 
+// Chinese New Year boundary (CNY 2024 = Feb 10):
+const beforeCny = calcChinese(2024, 2, 9); // still the 2023 year → Water Yin Rabbit
+check('2024-02-09 animal', beforeCny.animal.name, 'Rabbit');
+check('2024-02-09 element', beforeCny.element.name, 'Water');
+check('2024-02-09 polarity', beforeCny.polarity, 'yin');
+check('2024-02-09 exact', beforeCny.approxYearOnly, false);
+
+const onCny = calcChinese(2024, 2, 10); // new year starts → Wood Yang Dragon
+check('2024-02-10 animal', onCny.animal.name, 'Dragon');
+check('2024-02-10 element', onCny.element.name, 'Wood');
+
 // --- Full Solar Code (range + determinism) ---
 const r = computeSolarCode({ birthdate: '1995-06-13' });
 check('solarCode = kin*year mod 144000', r.solarCode, (51 * 1995) % 144000);

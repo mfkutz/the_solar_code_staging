@@ -52,7 +52,7 @@ export function computeSolarCode({ name = '', birthdate, time = '', country = ''
   if (!year || !month || !day) throw new Error(`invalid birthdate: ${birthdate}`);
 
   const tz = calcKin(year, month, day);
-  const chinese = calcChinese(year);
+  const chinese = calcChinese(year, month, day);
   const solarCode = calcSolarNumber(tz.kin, year);
   const element = ELEMENT_BY_SEAL[tz.seal.n - 1];
 

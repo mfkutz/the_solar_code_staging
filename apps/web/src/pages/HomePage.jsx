@@ -81,7 +81,7 @@ const HomePage = () => {
       </Helmet>
 
       <div className="min-h-screen">
-        {/* Hero Section */}
+        {/* Hero + Calculator — the calculator is the first thing visitors see */}
         <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0 z-0">
             <img
@@ -89,32 +89,27 @@ const HomePage = () => {
               alt="Cosmic solar background"
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/70 to-background"></div>
+            <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/80 to-background"></div>
           </div>
 
-          <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-20">
+          <div className="relative z-10 w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-28 pb-16">
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-primary mb-6 text-glow" style={{ letterSpacing: '-0.02em' }}>
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-primary mb-4 text-glow" style={{ letterSpacing: '-0.02em' }}>
                 THE SOLAR CODE
               </h1>
-              <p className="text-2xl md:text-3xl text-foreground mb-6 font-medium">{c.hero.subtitle}</p>
-              <p className="text-xl md:text-2xl text-foreground mb-12">{c.hero.joinLine}</p>
-              <p className="text-lg text-muted-foreground max-w-3xl mx-auto mb-12 leading-relaxed">{c.hero.intro}</p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="text-lg px-8 py-6 bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 active:scale-[0.98]"
-                  onClick={() => document.querySelector('#discover')?.scrollIntoView({ behavior: 'smooth' })}>
-                  {c.hero.btnDiscover}
-                </Button>
-                <Button size="lg" variant="outline" className="text-lg px-8 py-6 border-primary text-primary hover:bg-primary/10 transition-all duration-300 active:scale-[0.98]"
-                  onClick={() => document.querySelector('#join')?.scrollIntoView({ behavior: 'smooth' })}>
-                  {c.hero.btnJoin}
-                </Button>
-                <Button size="lg" className="text-lg px-8 py-6 bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-all duration-300 active:scale-[0.98]"
-                  onClick={() => document.querySelector('#what-is')?.scrollIntoView({ behavior: 'smooth' })}>
-                  {c.hero.btnBegin}
-                </Button>
-              </div>
+              <p className="text-xl md:text-2xl text-foreground mb-10 font-medium">{c.hero.subtitle}</p>
             </motion.div>
+
+            <motion.div id="discover" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }}>
+              <BirthForm />
+            </motion.div>
+
+            <button
+              onClick={() => document.querySelector('#what-is')?.scrollIntoView({ behavior: 'smooth' })}
+              className="mt-10 text-sm text-muted-foreground hover:text-primary transition-colors"
+            >
+              {c.hero.btnBegin} ↓
+            </button>
           </div>
         </section>
 
@@ -151,16 +146,6 @@ const HomePage = () => {
                   <p>{c.codes.closing}</p>
                 </div>
               </div>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Discover Your Solar Code */}
-        <section id="discover" className="py-24 bg-muted">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <SectionHeading title={c.discover.title} subtitle={c.discover.subtitle} />
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
-              <BirthForm />
             </motion.div>
           </div>
         </section>

@@ -1,12 +1,15 @@
 /**
- * Chinese zodiac — animal, element and polarity from the Gregorian year.
+ * Chinese zodiac — animal, element and polarity for a given birth date.
  *
- * Verified: 2024 -> Wood Yang Dragon (甲辰 Jia Chen). ✅
+ * The Chinese (lunisolar) year does NOT turn on Jan 1 — it turns at Chinese
+ * New Year (late Jan / early Feb). Someone born in January or early February
+ * belongs to the PREVIOUS animal year. We therefore use a Chinese New Year
+ * date table to pick the correct "effective" zodiac year before computing the
+ * animal / element / polarity.
  *
- * NOTE / known limitation for MVP: the Chinese year actually turns at Chinese
- * New Year (late Jan / early Feb), not on Jan 1. People born in January or
- * early February may fall under the previous animal. Refining this needs a
- * Chinese New Year date table — flagged as a TODO to confirm with the partner.
+ * Verified anchors:
+ *   2024-02-10 -> Wood Yang Dragon (甲辰)            ✅
+ *   2024-02-09 -> Water Yin Rabbit (still 2023 year) ✅
  */
 
 export const ANIMALS = [
@@ -33,13 +36,68 @@ export const CHINESE_ELEMENTS = [
 ];
 
 /**
- * @param {number} year - full Gregorian year
+ * Chinese New Year (start of the zodiac year) as [month, day], Gregorian.
+ * A birth date earlier than this belongs to the previous zodiac year.
+ * Covers 1920–2031 (well beyond any realistic birth date).
+ */
+const CHINESE_NEW_YEAR = {
+  1920: [2, 20], 1921: [2, 8], 1922: [1, 28], 1923: [2, 16], 1924: [2, 5],
+  1925: [1, 25], 1926: [2, 13], 1927: [2, 2], 1928: [1, 23], 1929: [2, 10],
+  1930: [1, 30], 1931: [2, 17], 1932: [2, 6], 1933: [1, 26], 1934: [2, 14],
+  1935: [2, 4], 1936: [1, 24], 1937: [2, 11], 1938: [1, 31], 1939: [2, 19],
+  1940: [2, 8], 1941: [1, 27], 1942: [2, 15], 1943: [2, 5], 1944: [1, 25],
+  1945: [2, 13], 1946: [2, 2], 1947: [1, 22], 1948: [2, 10], 1949: [1, 29],
+  1950: [2, 17], 1951: [2, 6], 1952: [1, 27], 1953: [2, 14], 1954: [2, 3],
+  1955: [1, 24], 1956: [2, 12], 1957: [1, 31], 1958: [2, 18], 1959: [2, 8],
+  1960: [1, 28], 1961: [2, 15], 1962: [2, 5], 1963: [1, 25], 1964: [2, 13],
+  1965: [2, 2], 1966: [1, 21], 1967: [2, 9], 1968: [1, 30], 1969: [2, 17],
+  1970: [2, 6], 1971: [1, 27], 1972: [2, 15], 1973: [2, 3], 1974: [1, 23],
+  1975: [2, 11], 1976: [1, 31], 1977: [2, 18], 1978: [2, 7], 1979: [1, 28],
+  1980: [2, 16], 1981: [2, 5], 1982: [1, 25], 1983: [2, 13], 1984: [2, 2],
+  1985: [2, 20], 1986: [2, 9], 1987: [1, 29], 1988: [2, 17], 1989: [2, 6],
+  1990: [1, 27], 1991: [2, 15], 1992: [2, 4], 1993: [1, 23], 1994: [2, 10],
+  1995: [1, 31], 1996: [2, 19], 1997: [2, 7], 1998: [1, 28], 1999: [2, 16],
+  2000: [2, 5], 2001: [1, 24], 2002: [2, 12], 2003: [2, 1], 2004: [1, 22],
+  2005: [2, 9], 2006: [1, 29], 2007: [2, 18], 2008: [2, 7], 2009: [1, 26],
+  2010: [2, 14], 2011: [2, 3], 2012: [1, 23], 2013: [2, 10], 2014: [1, 31],
+  2015: [2, 19], 2016: [2, 8], 2017: [1, 28], 2018: [2, 16], 2019: [2, 5],
+  2020: [1, 25], 2021: [2, 12], 2022: [2, 1], 2023: [1, 22], 2024: [2, 10],
+  2025: [1, 29], 2026: [2, 17], 2027: [2, 6], 2028: [1, 26], 2029: [2, 13],
+  2030: [2, 3], 2031: [1, 23],
+};
+
+/**
+ * Resolve the effective Chinese zodiac year for a birth date, accounting for
+ * the Chinese New Year boundary.
+ * @returns {{ year: number, exact: boolean }}
+ */
+function effectiveZodiacYear(year, month, day) {
+  const cny = CHINESE_NEW_YEAR[year];
+  if (!cny) {
+    // Outside the table — fall back to the raw Gregorian year (approximate).
+    return { year, exact: false };
+  }
+  const [cnyMonth, cnyDay] = cny;
+  const beforeNewYear = month < cnyMonth || (month === cnyMonth && day < cnyDay);
+  return { year: beforeNewYear ? year - 1 : year, exact: true };
+}
+
+/**
+ * @param {number} year  - full Gregorian year
+ * @param {number} [month] - 1..12 (needed for the Chinese New Year boundary)
+ * @param {number} [day]   - 1..31
  * @returns {{ animal: object, element: object, polarity: 'yang'|'yin',
  *             approxYearOnly: boolean }}
  */
-export function calcChinese(year) {
-  const animalIndex = ((year - 4) % 12 + 12) % 12;
-  const stem = ((year - 4) % 10 + 10) % 10; // 0..9 heavenly stem
+export function calcChinese(year, month, day) {
+  // If month/day are missing we can only approximate from the Gregorian year.
+  const hasFullDate = Number.isFinite(month) && Number.isFinite(day);
+  const { year: zodiacYear, exact } = hasFullDate
+    ? effectiveZodiacYear(year, month, day)
+    : { year, exact: false };
+
+  const animalIndex = ((zodiacYear - 4) % 12 + 12) % 12;
+  const stem = ((zodiacYear - 4) % 10 + 10) % 10; // 0..9 heavenly stem
   const elementIndex = Math.floor(stem / 2); // 0..4
   const polarity = stem % 2 === 0 ? 'yang' : 'yin';
 
@@ -47,6 +105,6 @@ export function calcChinese(year) {
     animal: ANIMALS[animalIndex],
     element: CHINESE_ELEMENTS[elementIndex],
     polarity,
-    approxYearOnly: true, // see Chinese New Year note above
+    approxYearOnly: !exact, // true only when we couldn't apply the CNY boundary
   };
 }
