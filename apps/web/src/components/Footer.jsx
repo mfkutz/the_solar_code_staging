@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Sun, ExternalLink } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nProvider.jsx';
 import { APP_VERSION, APP_COMMIT, BUILD_DATE } from '@/config/version.js';
@@ -59,12 +60,12 @@ const Footer = () => {
             © {new Date().getFullYear()} The Solar Code. {t('footer.rights')}
           </p>
           <div className="flex gap-6">
-            <a href="#" className="text-sm opacity-70 hover:opacity-100 hover:text-primary transition-all duration-200">
+            <Link to="/privacidad" className="text-sm opacity-70 hover:opacity-100 hover:text-primary transition-all duration-200">
               {t('footer.privacy')}
-            </a>
-            <a href="#" className="text-sm opacity-70 hover:opacity-100 hover:text-primary transition-all duration-200">
+            </Link>
+            <Link to="/terminos" className="text-sm opacity-70 hover:opacity-100 hover:text-primary transition-all duration-200">
               {t('footer.terms')}
-            </a>
+            </Link>
           </div>
         </div>
 

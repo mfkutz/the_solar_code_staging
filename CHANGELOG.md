@@ -5,6 +5,12 @@ The version shown in the site footer (`vX.Y.Z · date · commit`) matches these 
 
 Format: [Keep a Changelog](https://keepachangelog.com/). Versioning: SemVer (pre-1.0, so `0.MINOR.PATCH`).
 
+## [0.4.0] — 2026-06-05
+### Added
+- Privacy Policy and Terms of Service pages (bilingual ES/EN), reachable from the footer.
+  Drafted to match the site (no backend, Stripe payments, browser-side data, Spanish company).
+  Pending review by the business owner and a few `[completar: ...]` fields.
+
 ## [0.3.0] — 2026-06-05
 ### Added
 - Visible version stamp in the footer (`version · build date · commit`).
