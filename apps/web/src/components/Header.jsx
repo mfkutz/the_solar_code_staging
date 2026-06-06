@@ -16,6 +16,7 @@ const Header = () => {
     { label: t('nav.whatIs'), href: '#what-is' },
     { label: t('nav.codes'), href: '#codes' },
     { label: t('nav.discover'), href: '#discover' },
+    { label: t('nav.reports'), to: '/informes' },
     { label: t('nav.elements'), href: '#elements' },
     { label: t('nav.activation'), href: '#activation' },
     { label: t('nav.dragon'), href: '#dragon' },
@@ -23,8 +24,14 @@ const Header = () => {
     { label: t('nav.join'), href: '#join' }
   ];
 
-  const handleNavClick = (href) => {
+  const handleNavClick = (item) => {
     setIsOpen(false);
+    // Route links (e.g. /informes) navigate directly.
+    if (typeof item === 'object' && item.to) {
+      navigate(item.to);
+      return;
+    }
+    const href = typeof item === 'object' ? item.href : item;
     // Anchor sections only exist on the homepage; route home first if elsewhere.
     if (location.pathname !== '/') {
       navigate(`/${href}`);
@@ -68,9 +75,9 @@ const Header = () => {
           <nav className="hidden lg:flex items-center gap-1">
             {navItems.map((item) => (
               <a
-                key={item.href}
-                href={item.href}
-                onClick={(e) => { e.preventDefault(); handleNavClick(item.href); }}
+                key={item.href || item.to}
+                href={item.href || item.to}
+                onClick={(e) => { e.preventDefault(); handleNavClick(item); }}
                 className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-primary transition-all duration-200 rounded-lg hover:bg-muted"
               >
                 {item.label}
@@ -91,9 +98,9 @@ const Header = () => {
                 <div className="flex flex-col gap-4 mt-8">
                   {navItems.map((item) => (
                     <a
-                      key={item.href}
-                      href={item.href}
-                      onClick={(e) => { e.preventDefault(); handleNavClick(item.href); }}
+                      key={item.href || item.to}
+                      href={item.href || item.to}
+                      onClick={(e) => { e.preventDefault(); handleNavClick(item); }}
                       className="px-4 py-3 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-lg transition-all duration-200"
                     >
                       {item.label}

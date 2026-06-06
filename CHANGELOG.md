@@ -5,6 +5,21 @@ The version shown in the site footer (`vX.Y.Z · date · commit`) matches these 
 
 Format: [Keep a Changelog](https://keepachangelog.com/). Versioning: SemVer (pre-1.0, so `0.MINOR.PATCH`).
 
+## [0.6.0] — 2026-06-06
+### Added
+- **Relational reports (Couple / Family / Team)** — Fase 2, still no backend:
+  - Reports chooser page (`/informes`) with the 4 options + a "more options" link from
+    the individual result and an "Informes" entry in the nav.
+  - Multi-person form (`/conjunto/:type`): Couple = 2 people, Family/Team add people
+    dynamically (Family up to 8, Team up to 12).
+  - Relational engine (`lib/solarcode/relations.js`): symbolic compatibility from the 5
+    Solar Elements (same / unifying / nourishing / balancing), group resonance score and
+    dominant element. Draft model + content (ES/EN) for the partner to refine.
+  - Free teaser (each person's code + shared resonance) → paid report (every bond in
+    depth + shared field + synthesis). One Stripe Payment Link per tier (€44/€66/€88),
+    links pending.
+- Reusable `PersonFields` and `PersonSolarCard` components. 52/52 engine checks pass.
+
 ## [0.5.0] — 2026-06-05
 ### Changed
 - **The element now comes from the Solar Code's tramo, not the Mayan seal** (book Chapter 7).

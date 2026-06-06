@@ -178,6 +178,11 @@ const ResultPage = () => {
             onClick={handleUnlock}>
             {t('result.unlockCta')} · {PRICES.fullReport.display}
           </Button>
+          <p className="mt-5 text-sm opacity-80">
+            <Link to="/informes" className="underline underline-offset-4 hover:text-primary transition-colors">
+              {t('reports.moreOptions')}
+            </Link>
+          </p>
         </motion.div>
 
         {/* Actions */}

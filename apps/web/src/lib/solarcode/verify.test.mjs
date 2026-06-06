@@ -5,6 +5,7 @@
 import { calcKin } from './tzolkin.js';
 import { calcChinese } from './chinese.js';
 import { computeSolarCode, calcTramo } from './index.js';
+import { computeRelation, pairCategory } from './relations.js';
 
 let pass = 0;
 let fail = 0;
@@ -86,6 +87,23 @@ check('Book seal', book.seal.name, 'Worldbridger');
 check('Book solarCode', book.solarCode, (146 * 1982) % 144000);
 check('Book tramo', book.tramo.n, 60);
 check('Book element', book.element, 'ether');
+
+// --- Relational engine (Couple / Family / Team) ---
+check('pairCategory same', pairCategory('fire', 'fire'), 'same');
+check('pairCategory ether', pairCategory('ether', 'water'), 'unifying');
+check('pairCategory nourishing', pairCategory('earth', 'water'), 'nourishing');
+check('pairCategory balancing', pairCategory('fire', 'water'), 'balancing');
+
+const couple = computeRelation([{ birthdate: '1989-02-03', name: 'A' }, { birthdate: '1990-07-15', name: 'B' }]);
+check('couple has 2 people', couple.people.length, 2);
+check('couple has 1 pair', couple.pairs.length, 1);
+check('couple resonance in range', couple.group.resonance >= 1 && couple.group.resonance <= 100, true);
+
+const family = computeRelation([
+  { birthdate: '1989-02-03' }, { birthdate: '1990-07-15' }, { birthdate: '2015-09-01' },
+]);
+check('family has 3 pairs', family.pairs.length, 3); // 3 choose 2
+check('family dominant element is a string', typeof family.group.dominantElement, 'string');
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
