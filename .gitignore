@@ -12,6 +12,10 @@ dist/
 .env.*
 !.env.example
 
+# Private / owner materials — never commit (book PDF, source content, drafts)
+_private/
+*.pdf
+
 # Logs
 npm-debug.log*
 yarn-debug.log*

@@ -9,22 +9,16 @@ import { calcKin } from './tzolkin.js';
 import { calcChinese } from './chinese.js';
 
 export const MATRIX_SIZE = 144000;
+export const TRAMO_SIZE = 2400; // codes per tramo
+export const TRAMO_COUNT = 60; // 5 elements × 12
 
 /**
- * The site's 5 Universal Elements (Earth, Water, Air, Fire, Ether).
- * This maps each of the 20 Mayan seals to one element.
- *
- * ⚠️ PLACEHOLDER MAPPING — this belongs to the partner's symbolic system.
- * Default below is a simple rotation; confirm the intended seal→element
- * mapping with the partner and edit this single array.
- * Index = sealIndex (0..19). Values: earth | water | air | fire | ether
+ * The site's 5 Universal Elements, cycling Earth→Water→Air→Fire→Ether.
+ * The element is NOT derived from the Mayan seal — it comes from the TRAMO
+ * (the position of the final Solar Code in the 1..144,000 matrix), per the
+ * book's Chapter 7. Tramo color follows the element (Red/Blue/White/Green/Gold).
  */
-export const ELEMENT_BY_SEAL = [
-  'fire', 'air', 'ether', 'earth', 'fire', // dragon, wind, night, seed, serpent
-  'water', 'air', 'fire', 'water', 'earth', // worldbridger, hand, star, moon, dog
-  'air', 'ether', 'air', 'ether', 'air', // monkey, human, skywalker, wizard, eagle
-  'fire', 'earth', 'ether', 'fire', 'fire', // warrior, earth, mirror, storm, sun
-];
+const TRAMO_ELEMENTS = ['earth', 'water', 'air', 'fire', 'ether'];
 
 /**
  * Solar Code = (Kin × birthYear) reduced into the 1..144,000 matrix.
@@ -34,6 +28,21 @@ function calcSolarNumber(kin, year) {
   let code = (kin * year) % MATRIX_SIZE;
   if (code === 0) code = MATRIX_SIZE;
   return code;
+}
+
+/**
+ * Locate a Solar Code (1..144,000) within the 60 tramos.
+ * Tramos run from 144,000 downward: tramo 1 = 144,000..141,601, tramo 60 = 2,400..1.
+ * @returns {{ n, element, rangeHigh, rangeLow }}
+ */
+export function calcTramo(code) {
+  const n = Math.floor((MATRIX_SIZE - code) / TRAMO_SIZE) + 1; // 1..60
+  return {
+    n,
+    element: TRAMO_ELEMENTS[(n - 1) % 5], // earth | water | air | fire | ether
+    rangeHigh: MATRIX_SIZE - (n - 1) * TRAMO_SIZE,
+    rangeLow: MATRIX_SIZE - n * TRAMO_SIZE + 1,
+  };
 }
 
 /**
@@ -54,7 +63,7 @@ export function computeSolarCode({ name = '', birthdate, time = '', country = ''
   const tz = calcKin(year, month, day);
   const chinese = calcChinese(year, month, day);
   const solarCode = calcSolarNumber(tz.kin, year);
-  const element = ELEMENT_BY_SEAL[tz.seal.n - 1];
+  const tramo = calcTramo(solarCode); // { n, element, rangeHigh, rangeLow }
 
   return {
     input: { name, birthdate, time, country, city, year, month, day },
@@ -63,8 +72,9 @@ export function computeSolarCode({ name = '', birthdate, time = '', country = ''
     kin: tz.kin, // 1..260
     seal: tz.seal, // { n, key, name, color } — the "solar archetype"
     tone: tz.toneInfo, // { n, key, name }
-    color: tz.color, // red | white | blue | yellow
-    element, // earth | water | air | fire | ether (5-element system)
+    color: tz.color, // red | white | blue | yellow (the seal color)
+    tramo, // { n: 1..60, element, rangeHigh, rangeLow }
+    element: tramo.element, // earth | water | air | fire | ether — derived from the tramo
     chinese, // { animal, element, polarity, approxYearOnly }
     isHunabKu: tz.isHunabKu, // Feb 29 special case
   };

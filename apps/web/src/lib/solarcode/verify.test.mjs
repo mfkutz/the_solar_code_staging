@@ -4,7 +4,7 @@
  */
 import { calcKin } from './tzolkin.js';
 import { calcChinese } from './chinese.js';
-import { computeSolarCode } from './index.js';
+import { computeSolarCode, calcTramo } from './index.js';
 
 let pass = 0;
 let fail = 0;
@@ -55,6 +55,37 @@ check('2024-02-10 element', onCny.element.name, 'Wood');
 const r = computeSolarCode({ birthdate: '1995-06-13' });
 check('solarCode = kin*year mod 144000', r.solarCode, (51 * 1995) % 144000);
 check('solarCode in range', r.solarCode >= 1 && r.solarCode <= 144000, true);
+
+// --- Tramo: element from the Solar Code, not the seal (book Chapter 7) ---
+// Tramos run from 144,000 downward in blocks of 2,400. Element cycles E/W/A/F/Et.
+check('tramo of 144000', calcTramo(144000), { n: 1, element: 'earth', rangeHigh: 144000, rangeLow: 141601 });
+check('tramo of 141601', calcTramo(141601).n, 1);
+check('tramo of 141600', calcTramo(141600).n, 2); // next block
+check('tramo 2 element', calcTramo(141600).element, 'water');
+check('tramo of 1', calcTramo(1), { n: 60, element: 'ether', rangeHigh: 2400, rangeLow: 1 });
+
+// --- Real validation vectors given by the partner / the book ---
+// Pablo: 1989-02-03 → Kin 71 (Blue Rhythmic Monkey), code 141,219, Earth Dragon.
+const pablo = computeSolarCode({ birthdate: '1989-02-03' });
+check('Pablo kin', pablo.kin, 71);
+check('Pablo seal', pablo.seal.name, 'Monkey');
+check('Pablo tone', pablo.tone.name, 'Rhythmic');
+check('Pablo solarCode', pablo.solarCode, 141219);
+check('Pablo tramo', pablo.tramo.n, 2);
+check('Pablo element', pablo.element, 'water');
+check('Pablo chinese animal', pablo.chinese.animal.name, 'Dragon');
+check('Pablo chinese element', pablo.chinese.element.name, 'Earth');
+check('Pablo chinese exact', pablo.chinese.approxYearOnly, false);
+
+// Book example: 1982-03-05 → Kin 146 (White Electric Worldbridger), Tramo 60.
+// (The printed book has an arithmetic typo: 146×1982 = 289,372 → code 1,372, not 1,772;
+//  both fall in Tramo 60, so the book's conclusion holds.)
+const book = computeSolarCode({ birthdate: '1982-03-05' });
+check('Book kin', book.kin, 146);
+check('Book seal', book.seal.name, 'Worldbridger');
+check('Book solarCode', book.solarCode, (146 * 1982) % 144000);
+check('Book tramo', book.tramo.n, 60);
+check('Book element', book.element, 'ether');
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

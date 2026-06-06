@@ -2,6 +2,12 @@
 // DRAFT content in the site's voice — for the partner to review and refine.
 // Each: { name, archetype (tagline), purpose (paragraph) } per language.
 
+// Seals whose Spanish name is feminine — used to agree the tone/color adjectives
+// in the galactic signature (e.g. "Estrella Planetaria Amarilla", not "...Planetario Amarillo").
+export const FEMININE_SEALS = new Set([
+  'night', 'seed', 'serpent', 'hand', 'star', 'moon', 'eagle', 'earth', 'storm',
+]);
+
 export const seals = {
   dragon: {
     en: { name: 'Dragon', archetype: 'The Primordial Nurturer', purpose: 'You carry the energy of beginnings — the womb of creation. Your purpose is to nurture life into form, to trust being over doing, and to remind others that they are held by the source.' },

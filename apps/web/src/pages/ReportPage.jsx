@@ -9,8 +9,10 @@ import { REPORT_STORAGE_KEY } from '@/config/payments.js';
 import { seals } from '@/content/seals.js';
 import { tones } from '@/content/tones.js';
 import { elements, colors } from '@/content/elements.js';
+import { tramos, tramoColors } from '@/content/tramos.js';
 import { chineseAnimals, chineseElements } from '@/content/chinese.js';
 import { reportContent } from '@/content/report.js';
+import { solarSignature } from '@/lib/signature.js';
 
 function readStoredInput() {
   try {
@@ -60,11 +62,17 @@ const ReportPage = () => {
   const tone = tones[result.tone.key][lang];
   const element = elements[result.element][lang];
   const color = colors[result.color];
+  const tramoData = tramos[result.tramo.n - 1][lang];
+  const tramoColor = tramoColors[result.tramo.element][lang];
   const animal = chineseAnimals[result.chinese.animal.key][lang];
   const chineseEl = chineseElements[result.chinese.element.key][lang];
   const polarity = t(`common.${result.chinese.polarity}`);
   const locale = lang === 'es' ? 'es-ES' : 'en-US';
   const rc = reportContent[lang];
+
+  const signature = solarSignature({
+    sealKey: result.seal.key, sealName: seal.name, toneName: tone.name, colorName: color[lang].name, lang,
+  });
 
   const synthesis = rc.synthesis
     .replace('{seal}', seal.name)
@@ -112,7 +120,7 @@ const ReportPage = () => {
             {result.solarCode.toLocaleString(locale)}
           </p>
           <p className="text-lg text-foreground/80 mt-2">
-            {color[lang].name} {tone.name} {seal.name}
+            {signature}
           </p>
         </div>
 
@@ -130,6 +138,9 @@ const ReportPage = () => {
         <Section title={t('report.elementSection')}>
           <p className="text-lg leading-relaxed">
             <strong>{element.name}.</strong> {element.meaning}
+          </p>
+          <p className="text-lg leading-relaxed mt-4">
+            <strong>Tramo {result.tramo.n} · {tramoColor.name} · {tramoData.energy}.</strong> {tramoData.description}
           </p>
         </Section>
 

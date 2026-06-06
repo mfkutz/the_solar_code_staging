@@ -11,7 +11,9 @@ import { PAYMENT_LINKS, PRICES, REPORT_STORAGE_KEY } from '@/config/payments.js'
 import { seals } from '@/content/seals.js';
 import { tones } from '@/content/tones.js';
 import { elements, colors } from '@/content/elements.js';
+import { tramos, tramoColors } from '@/content/tramos.js';
 import { chineseAnimals, chineseElements } from '@/content/chinese.js';
+import { solarSignature } from '@/lib/signature.js';
 
 const Stat = ({ label, value, sub }) => (
   <div className="bg-muted rounded-xl p-5 text-center">
@@ -57,12 +59,25 @@ const ResultPage = () => {
   const tone = tones[result.tone.key][lang];
   const element = elements[result.element][lang];
   const color = colors[result.color];
+  const tramoData = tramos[result.tramo.n - 1][lang];
+  const tramoColor = tramoColors[result.tramo.element][lang];
   const animal = chineseAnimals[result.chinese.animal.key][lang];
   const chineseEl = chineseElements[result.chinese.element.key][lang];
   const polarity = t(`common.${result.chinese.polarity}`);
   const locale = lang === 'es' ? 'es-ES' : 'en-US';
 
-  const reading = `${seal.purpose} ${tone.meaning} ${element.meaning}`;
+  // Solar archetype name: EN "Yellow Planetary Star" / ES "Estrella Planetaria Amarilla".
+  const signature = solarSignature({
+    sealKey: result.seal.key, sealName: seal.name, toneName: tone.name, colorName: color[lang].name, lang,
+  });
+
+  // Purpose = the seal's archetypal purpose, colored by the galactic tone.
+  const purpose = `${seal.purpose} ${tone.meaning}`;
+
+  // Solar reading = where the Solar Code sits in the 144,000 matrix (its tramo + element).
+  const reading = lang === 'es'
+    ? `Tu Código Solar te ubica en el Tramo ${result.tramo.n} de la matriz de los 144.000, dentro del elemento ${element.name} (${tramoColor.name}): ${tramoData.energy}. ${tramoData.description} ${element.meaning}`
+    : `Your Solar Code places you in Tramo ${result.tramo.n} of the 144,000 matrix, within the element of ${element.name} (${tramoColor.name}): ${tramoData.energy}. ${tramoData.description} ${element.meaning}`;
 
   const handleUnlock = () => {
     // Stash the birth data so the report page can read it after payment.
@@ -119,7 +134,7 @@ const ResultPage = () => {
         >
           <p className="text-sm uppercase tracking-wider text-muted-foreground mb-2">{t('result.sealLabel')}</p>
           <h2 className="text-3xl font-bold text-primary mb-1" style={{ fontFamily: 'Playfair Display, serif' }}>
-            {color[lang].name} {tone.name} {seal.name}
+            {signature}
           </h2>
           <p className="text-lg text-foreground/80">{seal.archetype}</p>
         </motion.div>
@@ -128,7 +143,7 @@ const ResultPage = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
           <Stat label={t('result.kinLabel')} value={result.kin} sub={t('result.kinOf')} />
           <Stat label={t('result.toneLabel')} value={`${result.tone.n} · ${tone.name}`} />
-          <Stat label={t('result.elementLabel')} value={element.name} />
+          <Stat label={t('result.elementLabel')} value={element.name} sub={`Tramo ${result.tramo.n} · ${tramoColor.name}`} />
           <Stat label={t('result.chineseLabel')} value={`${chineseEl.name} ${animal.name}`} sub={polarity} />
         </div>
 
@@ -138,7 +153,7 @@ const ResultPage = () => {
           className="bg-muted rounded-2xl p-8 mb-6"
         >
           <h3 className="text-xl font-bold text-primary mb-4">{t('result.purposeTitle')}</h3>
-          <p className="text-lg leading-relaxed">{seal.purpose}</p>
+          <p className="text-lg leading-relaxed">{purpose}</p>
         </motion.div>
 
         {/* Free reading */}
