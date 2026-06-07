@@ -11,6 +11,7 @@ import SectionHeading from '@/components/SectionHeading.jsx';
 import ElementCard from '@/components/ElementCard.jsx';
 import ActivationCard from '@/components/ActivationCard.jsx';
 import BirthForm from '@/components/BirthForm.jsx';
+import SolarCodeOfDay from '@/components/SolarCodeOfDay.jsx';
 import { useI18n } from '@/i18n/I18nProvider.jsx';
 import { home } from '@/content/home.js';
 import { elements as elementsContent } from '@/content/elements.js';
@@ -102,6 +103,10 @@ const HomePage = () => {
 
             <motion.div id="discover" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }}>
               <BirthForm />
+            </motion.div>
+
+            <motion.div className="mt-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.4 }}>
+              <SolarCodeOfDay />
             </motion.div>
 
             <button

@@ -2,12 +2,12 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Sun, Users, Home as HomeIcon, Briefcase, ArrowRight } from 'lucide-react';
+import { Sun, Heart, Users, ArrowRight } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nProvider.jsx';
-import { PRICES, RELATIONAL_PRODUCTS } from '@/config/payments.js';
+import { PRICES, RELATIONAL_PRODUCTS, relationFromPrice } from '@/config/payments.js';
 import { relationContent } from '@/content/relations.js';
 
-const RELATION_ICONS = { pareja: Users, familiar: HomeIcon, laboral: Briefcase };
+const RELATION_ICONS = { pareja: Heart, grupal: Users };
 
 const Card = ({ icon: Icon, title, tagline, price, to, cta }) => (
   <Link to={to}
@@ -50,15 +50,16 @@ const ReportsPage = () => {
             to="/#discover"
             cta={t('reports.startCta')}
           />
-          {Object.entries(RELATIONAL_PRODUCTS).map(([type, product]) => {
+          {Object.keys(RELATIONAL_PRODUCTS).map((type) => {
             const meta = rc.types[type];
+            const { price, tiered } = relationFromPrice(type);
             return (
               <Card
                 key={type}
                 icon={RELATION_ICONS[type]}
                 title={meta.label}
                 tagline={meta.tagline}
-                price={product.price.display}
+                price={tiered ? `${t('reports.from')} ${price.display}` : price.display}
                 to={`/conjunto/${type}`}
                 cta={t('reports.startCta')}
               />

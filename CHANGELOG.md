@@ -5,6 +5,18 @@ The version shown in the site footer (`vX.Y.Z · date · commit`) matches these 
 
 Format: [Keep a Changelog](https://keepachangelog.com/). Versioning: SemVer (pre-1.0, so `0.MINOR.PATCH`).
 
+## [0.7.0] — 2026-06-07
+### Changed
+- **Family and Team unified into a single "Grupal" report** (Pablo's call after seeing the
+  staging Reports page). Now 3 reports total: Individual, Couple, Group. The group reading
+  is the same for any group; price scales with size — **€66 up to 5 people, €88 for 6–8**
+  (the form picks the matching Stripe link, still no backend). The chooser shows "from €66".
+### Added
+- **Solar Code of the Day** ("oráculo del día"): the day's Mayan Kin energy shown under the
+  calculator, so people return daily to check the energy. Computed by the same engine, no
+  external source. Validated: 2026-06-07 → Kin 180, Yellow Spectral Sun.
+- Pricing helpers `relationPricing` / `relationFromPrice` and 12 new engine checks (63/63 pass).
+
 ## [0.6.0] — 2026-06-06
 ### Added
 - **Relational reports (Couple / Family / Team)** — Fase 2, still no backend:

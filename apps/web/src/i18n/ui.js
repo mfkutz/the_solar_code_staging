@@ -95,7 +95,13 @@ export const ui = {
       individualLabel: 'Individual',
       individualTagline: 'Your personal Solar Code',
       startCta: 'Start',
-      moreOptions: 'Couple, Family & Team reports',
+      from: 'From',
+      moreOptions: 'Couple & Group reports',
+    },
+    oracle: {
+      title: 'Solar Code of the Day',
+      intro: "Today's energy",
+      kinLabel: 'Kin',
     },
     relation: {
       errorPeople: 'Please enter the date of birth for each person.',
@@ -202,7 +208,13 @@ export const ui = {
       individualLabel: 'Individual',
       individualTagline: 'Tu Código Solar personal',
       startCta: 'Empezar',
-      moreOptions: 'Informes de Pareja, Familiar y Laboral',
+      from: 'Desde',
+      moreOptions: 'Informes de Pareja y Grupal',
+    },
+    oracle: {
+      title: 'Código Solar del Día',
+      intro: 'La energía de hoy',
+      kinLabel: 'Kin',
     },
     relation: {
       errorPeople: 'Por favor ingresa la fecha de nacimiento de cada persona.',

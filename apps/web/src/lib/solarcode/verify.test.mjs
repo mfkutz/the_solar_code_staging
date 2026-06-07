@@ -6,6 +6,7 @@ import { calcKin } from './tzolkin.js';
 import { calcChinese } from './chinese.js';
 import { computeSolarCode, calcTramo } from './index.js';
 import { computeRelation, pairCategory } from './relations.js';
+import { relationPricing, relationFromPrice } from '../../config/payments.js';
 
 let pass = 0;
 let fail = 0;
@@ -104,6 +105,22 @@ const family = computeRelation([
 ]);
 check('family has 3 pairs', family.pairs.length, 3); // 3 choose 2
 check('family dominant element is a string', typeof family.group.dominantElement, 'string');
+
+// --- Grupal tiered pricing (€66 up to 5, €88 for 6–8) ---
+check('pareja price', relationPricing('pareja', 2).price.amount, 44);
+check('grupal 3 people → €66', relationPricing('grupal', 3).price.amount, 66);
+check('grupal 5 people → €66', relationPricing('grupal', 5).price.amount, 66);
+check('grupal 6 people → €88', relationPricing('grupal', 6).price.amount, 88);
+check('grupal 8 people → €88', relationPricing('grupal', 8).price.amount, 88);
+check('grupal "from" price is €66', relationFromPrice('grupal').price.amount, 66);
+check('grupal is tiered', relationFromPrice('grupal').tiered, true);
+check('pareja is not tiered', relationFromPrice('pareja').tiered, false);
+
+// --- Solar Code of the Day (fixed vector: Pablo's example 2026-06-07) ---
+const day = computeSolarCode({ birthdate: '2026-06-07' });
+check('2026-06-07 kin', day.kin, 180); // Sol Espectral Amarillo
+check('2026-06-07 seal', day.seal.key, 'sun');
+check('2026-06-07 tone', day.tone.key, 'spectral');
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

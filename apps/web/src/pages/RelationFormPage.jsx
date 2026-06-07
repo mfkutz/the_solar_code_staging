@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nProvider.jsx';
 import PersonFields from '@/components/PersonFields.jsx';
-import { RELATIONAL_PRODUCTS, isRelationType, RELATION_STORAGE_KEY } from '@/config/payments.js';
+import { RELATIONAL_PRODUCTS, isRelationType, relationPricing, RELATION_STORAGE_KEY } from '@/config/payments.js';
 import { relationContent } from '@/content/relations.js';
 
 const emptyPerson = () => ({ name: '', birthdate: '', time: '', city: '' });
@@ -65,7 +65,7 @@ const RelationFormPage = () => {
           <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>
             {meta.label}
           </h1>
-          <p className="text-muted-foreground">{meta.tagline} · {product.price.display}</p>
+          <p className="text-muted-foreground">{meta.tagline} · {relationPricing(type, people.length).price.display}</p>
         </motion.div>
 
         <form onSubmit={handleSubmit} className="space-y-5">

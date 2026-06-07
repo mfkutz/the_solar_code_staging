@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nProvider.jsx';
 import { computeRelation } from '@/lib/solarcode/relations.js';
 import PersonSolarCard from '@/components/PersonSolarCard.jsx';
-import { RELATIONAL_PRODUCTS, isRelationType, RELATION_STORAGE_KEY } from '@/config/payments.js';
+import { isRelationType, relationPricing, RELATION_STORAGE_KEY } from '@/config/payments.js';
 import { relationContent } from '@/content/relations.js';
 
 const fill = (tpl, vars) => tpl.replace(/\{(\w+)\}/g, (_, k) => (vars[k] ?? ''));
@@ -41,11 +41,11 @@ const RelationResultPage = () => {
   }
 
   const meta = rc.types[type];
-  const product = RELATIONAL_PRODUCTS[type];
+  const pricing = relationPricing(type, relation.people.length);
 
   const handleUnlock = () => {
-    if (product.link) {
-      window.location.href = product.link; // → Stripe → redirect back to the report
+    if (pricing.link) {
+      window.location.href = pricing.link; // → Stripe → redirect back to the report
     } else {
       navigate(`/conjunto/${type}/informe`); // no live link yet: preview
     }
@@ -88,7 +88,7 @@ const RelationResultPage = () => {
           </h3>
           <p className="max-w-xl mx-auto mb-6 opacity-90 leading-relaxed">{t('relation.unlockText')}</p>
           <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90" onClick={handleUnlock}>
-            <Sparkles className="w-4 h-4 mr-2" /> {t('relation.unlockCta')} · {product.price.display}
+            <Sparkles className="w-4 h-4 mr-2" /> {t('relation.unlockCta')} · {pricing.price.display}
           </Button>
         </motion.div>
       </div>
