@@ -65,15 +65,15 @@ const BirthForm = () => {
   };
 
   return (
-    <div className="bg-card rounded-2xl p-8 md:p-12 border border-primary/30 shadow-lg max-w-2xl mx-auto">
+    <div className="bg-card rounded-2xl p-8 md:p-12 border border-primary/30 shadow-lg max-w-2xl lg:max-w-3xl mx-auto">
       <div className="text-center mb-8">
         <Sun className="w-16 h-16 text-primary mx-auto mb-4" />
         <h3 className="text-2xl font-bold mb-2">{t('form.title')}</h3>
         <p className="text-muted-foreground">{t('form.subtitle')}</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div>
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="md:col-span-2">
           <Label htmlFor="name">{t('form.name')}</Label>
           <Input id="name" name="name" value={data.name} onChange={handleChange}
             className="mt-2 bg-input" placeholder={t('form.namePh')} />
@@ -124,21 +124,19 @@ const BirthForm = () => {
           <p className="text-xs text-muted-foreground mt-1">{t('form.timeHint')}</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="country">{t('form.country')}</Label>
-            <Input id="country" name="country" value={data.country} onChange={handleChange}
-              className="mt-2 bg-input" placeholder={t('form.countryPh')} />
-          </div>
-          <div>
-            <Label htmlFor="city">{t('form.city')}</Label>
-            <Input id="city" name="city" value={data.city} onChange={handleChange}
-              className="mt-2 bg-input" placeholder={t('form.cityPh')} />
-          </div>
+        <div>
+          <Label htmlFor="country">{t('form.country')}</Label>
+          <Input id="country" name="country" value={data.country} onChange={handleChange}
+            className="mt-2 bg-input" placeholder={t('form.countryPh')} />
+        </div>
+        <div>
+          <Label htmlFor="city">{t('form.city')}</Label>
+          <Input id="city" name="city" value={data.city} onChange={handleChange}
+            className="mt-2 bg-input" placeholder={t('form.cityPh')} />
         </div>
 
         <Button type="submit" size="lg"
-          className="w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 active:scale-[0.98]">
+          className="md:col-span-2 w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 active:scale-[0.98]">
           {t('form.submit')}
         </Button>
       </form>

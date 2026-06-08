@@ -94,6 +94,14 @@ const HomePage = () => {
           </div>
 
           <div className="relative z-10 w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-28 pb-16">
+            {/* Day's energy ribbon — first thing seen, invites a daily return */}
+            <motion.div
+              className="max-w-lg mx-auto mb-8"
+              initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
+            >
+              <SolarCodeOfDay variant="ribbon" />
+            </motion.div>
+
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-primary mb-4 text-glow" style={{ letterSpacing: '-0.02em' }}>
                 THE SOLAR CODE
@@ -103,10 +111,6 @@ const HomePage = () => {
 
             <motion.div id="discover" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }}>
               <BirthForm />
-            </motion.div>
-
-            <motion.div className="mt-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.4 }}>
-              <SolarCodeOfDay />
             </motion.div>
 
             <button

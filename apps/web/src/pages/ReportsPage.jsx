@@ -4,18 +4,20 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Sun, Heart, Users, ArrowRight } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nProvider.jsx';
-import { PRICES, RELATIONAL_PRODUCTS, relationFromPrice } from '@/config/payments.js';
+import { RELATIONAL_PRODUCTS } from '@/config/payments.js';
 import { relationContent } from '@/content/relations.js';
 
 const RELATION_ICONS = { pareja: Heart, grupal: Users };
 
-const Card = ({ icon: Icon, title, tagline, price, to, cta }) => (
+const Card = ({ icon: Icon, title, tagline, freeLabel, to, cta }) => (
   <Link to={to}
-    className="group bg-card rounded-2xl p-8 border border-primary/20 hover:border-primary/60 transition-all duration-300 flex flex-col text-center items-center hover:-translate-y-1">
+    className="group w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] bg-card rounded-2xl p-8 border border-primary/20 hover:border-primary/60 transition-all duration-300 flex flex-col text-center items-center hover:-translate-y-1">
     <Icon className="w-12 h-12 text-primary mb-4" />
     <h3 className="text-2xl font-bold text-primary mb-1" style={{ fontFamily: 'Playfair Display, serif' }}>{title}</h3>
     <p className="text-muted-foreground mb-4 flex-grow">{tagline}</p>
-    <p className="text-lg font-semibold text-foreground mb-4">{price}</p>
+    <span className="text-xs uppercase tracking-widest text-primary border border-primary/40 rounded-full px-3 py-1 mb-4">
+      {freeLabel}
+    </span>
     <span className="inline-flex items-center gap-2 text-primary font-medium group-hover:gap-3 transition-all">
       {cta} <ArrowRight className="w-4 h-4" />
     </span>
@@ -41,25 +43,24 @@ const ReportsPage = () => {
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">{t('reports.subtitle')}</p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="flex flex-wrap justify-center gap-6">
           <Card
             icon={Sun}
             title={t('reports.individualLabel')}
             tagline={t('reports.individualTagline')}
-            price={`${t('common.free')} · ${PRICES.fullReport.display}`}
+            freeLabel={t('common.free')}
             to="/#discover"
             cta={t('reports.startCta')}
           />
           {Object.keys(RELATIONAL_PRODUCTS).map((type) => {
             const meta = rc.types[type];
-            const { price, tiered } = relationFromPrice(type);
             return (
               <Card
                 key={type}
                 icon={RELATION_ICONS[type]}
                 title={meta.label}
                 tagline={meta.tagline}
-                price={tiered ? `${t('reports.from')} ${price.display}` : price.display}
+                freeLabel={t('common.free')}
                 to={`/conjunto/${type}`}
                 cta={t('reports.startCta')}
               />

@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import RitualReveal from '@/components/RitualReveal.jsx';
 import { Sun, ArrowLeft, Lock, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -29,6 +30,7 @@ const ResultPage = () => {
   const [params] = useSearchParams();
   const birthdate = params.get('birthdate');
   const name = params.get('name') || '';
+  const [revealing, setRevealing] = useState(true);
 
   const result = useMemo(() => {
     if (!birthdate) return null;
@@ -103,7 +105,12 @@ const ResultPage = () => {
   };
 
   return (
-    <div className="min-h-screen pt-28 pb-24">
+    <>
+      <AnimatePresence>
+        {revealing && <RitualReveal onDone={() => setRevealing(false)} />}
+      </AnimatePresence>
+
+      <div className="min-h-screen pt-28 pb-24">
       <Helmet>
         <title>{`${t('result.title')} — ${result.solarCode.toLocaleString(locale)}`}</title>
       </Helmet>
@@ -119,7 +126,7 @@ const ResultPage = () => {
           className="text-center mb-12"
         >
           {name && <p className="text-lg text-muted-foreground mb-2">{t('result.greeting')}, {name}</p>}
-          <Sun className="w-20 h-20 mx-auto mb-6" style={{ color: color.hex }} />
+          <Sun className="w-20 h-20 mx-auto mb-6 text-primary" />
           <p className="text-sm uppercase tracking-widest text-muted-foreground mb-2">{t('result.yourNumber')}</p>
           <h1 className="text-6xl md:text-8xl font-bold text-primary text-glow mb-2">
             {result.solarCode.toLocaleString(locale)}
@@ -195,7 +202,8 @@ const ResultPage = () => {
           </Button>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

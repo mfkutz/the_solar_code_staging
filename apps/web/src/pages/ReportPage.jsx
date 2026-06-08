@@ -82,6 +82,13 @@ const ReportPage = () => {
     .replace('{chineseElement}', chineseEl.name)
     .replace('{code}', result.solarCode.toLocaleString(locale));
 
+  const numberMeaning = rc.numberMeaning
+    .replace('{code}', result.solarCode.toLocaleString(locale))
+    .replace('{tramo}', String(result.tramo.n))
+    .replace('{rangeHigh}', result.tramo.rangeHigh.toLocaleString(locale))
+    .replace('{rangeLow}', result.tramo.rangeLow.toLocaleString(locale))
+    .replace('{element}', element.name);
+
   const practices = rc.practices[result.element] || [];
   const name = result.input.name;
 
@@ -111,7 +118,7 @@ const ReportPage = () => {
 
         {/* Title */}
         <div className="text-center mb-12">
-          <Sun className="w-16 h-16 mx-auto mb-4" style={{ color: color.hex }} />
+          <Sun className="w-16 h-16 mx-auto mb-4 text-primary" />
           <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>
             {t('report.title')}
           </h1>
@@ -129,6 +136,15 @@ const ReportPage = () => {
           <p className="text-lg leading-relaxed">{seal.purpose}</p>
         </Section>
 
+        <Section title={t('report.giftSection')}>
+          <p className="text-lg leading-relaxed mb-4">
+            <strong className="text-primary">{rc.giftLabel}.</strong> {seal.gift}
+          </p>
+          <p className="text-lg leading-relaxed">
+            <strong className="text-primary">{rc.shadowLabel}.</strong> {seal.shadow}
+          </p>
+        </Section>
+
         <Section title={t('report.toneSection')}>
           <p className="text-lg leading-relaxed">
             <strong>{result.tone.n} · {tone.name}.</strong> {tone.meaning}
@@ -142,6 +158,10 @@ const ReportPage = () => {
           <p className="text-lg leading-relaxed mt-4">
             <strong>Tramo {result.tramo.n} · {tramoColor.name} · {tramoData.energy}.</strong> {tramoData.description}
           </p>
+        </Section>
+
+        <Section title={t('report.numberSection')}>
+          <p className="text-lg leading-relaxed">{numberMeaning}</p>
         </Section>
 
         <Section title={t('report.chineseSection')}>
@@ -166,12 +186,26 @@ const ReportPage = () => {
           </ul>
         </Section>
 
+        <Section title={rc.dailyTitle}>
+          <p className="text-muted-foreground mb-4">{rc.dailyIntro}</p>
+          <ul className="space-y-4">
+            {rc.daily.map((p, i) => (
+              <li key={i}>
+                <p className="font-semibold text-foreground">{p.name}</p>
+                <p className="text-muted-foreground leading-relaxed">{p.description}</p>
+              </li>
+            ))}
+          </ul>
+        </Section>
+
         <div className="bg-secondary text-secondary-foreground rounded-2xl p-8 text-center border border-primary/20 report-section">
           <h2 className="text-2xl font-bold text-primary mb-4" style={{ fontFamily: 'Playfair Display, serif' }}>
             {t('report.closingSection')}
           </h2>
           <p className="text-lg leading-relaxed">{rc.closing}</p>
         </div>
+
+        <p className="text-xs text-muted-foreground text-center mt-6 max-w-xl mx-auto">{rc.disclaimer}</p>
 
         <div className="text-center mt-10 no-print">
           <Button asChild variant="ghost">

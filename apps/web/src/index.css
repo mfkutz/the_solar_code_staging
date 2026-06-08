@@ -6,6 +6,12 @@
 
 @layer base {
   :root {
+    /* Render native form controls (time/date pickers, spinners, the calendar
+       popup) in dark mode so they match the site instead of the OS default. */
+    color-scheme: dark;
+    /* Tint the native highlight (selected item / hover in the time menu,
+       checkboxes, etc.) to the site's gold instead of the browser blue. */
+    accent-color: hsl(var(--primary));
     --background: 240 10% 3.9%;
     --foreground: 45 100% 95%;
     --primary: 45 93% 58%;
@@ -84,6 +90,37 @@
     font-family: "Playfair Display", serif;
     text-wrap: balance;
   }
+
+  /* Native time/date picker icon — tint it to the site's gold and make it
+     clearly clickable, instead of the browser's default grey clock. */
+  input[type="time"]::-webkit-calendar-picker-indicator,
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.85;
+    /* brightness(0) normalizes the icon to black, then the chain tints it gold. */
+    filter: brightness(0) saturate(100%) invert(78%) sepia(58%) saturate(520%) hue-rotate(358deg) brightness(95%) contrast(90%);
+    transition: opacity 0.2s ease;
+  }
+  input[type="time"]::-webkit-calendar-picker-indicator:hover,
+  input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+  }
+
+  /* Browser autofill forces a light background that breaks the dark theme.
+     Repaint it to match the input (dark) and keep the text legible. */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active,
+  textarea:-webkit-autofill,
+  select:-webkit-autofill {
+    -webkit-text-fill-color: hsl(var(--foreground));
+    -webkit-box-shadow: 0 0 0 1000px hsl(var(--input)) inset;
+    box-shadow: 0 0 0 1000px hsl(var(--input)) inset;
+    caret-color: hsl(var(--foreground));
+    /* Delay the autofill background swap effectively forever. */
+    transition: background-color 9999s ease-in-out 0s;
+  }
 }
 
 @layer utilities {
@@ -110,6 +147,7 @@
    report becomes a clean printable page instead of the dark on-screen theme. */
 @media print {
   :root {
+    color-scheme: light;
     --background: 0 0% 100%;
     --foreground: 240 12% 14%;
     --primary: 38 70% 40%;

@@ -5,6 +5,52 @@ The version shown in the site footer (`vX.Y.Z · date · commit`) matches these 
 
 Format: [Keep a Changelog](https://keepachangelog.com/). Versioning: SemVer (pre-1.0, so `0.MINOR.PATCH`).
 
+## [0.9.0] — 2026-06-07
+### Changed
+- **Navbar redesigned** to reduce clutter: the homepage anchors are grouped into two
+  dropdowns — "El Código / The Code" (What is it, 144,000 Codes, Elements, Activation)
+  and "Movimiento / Movement" (Golden Dragon, Datong, Join). "Discover Your Code" stays
+  flat and **Informes / Reports** is now a highlighted gold button (the CTA).
+- **Nav is centered** in the bar (logo left, nav center, language toggle right) for symmetry.
+- **Mobile menu** uses collapsible accordions for the two groups, with Informes as a button.
+- **Reports cards** are now centered with flexbox (the lone Grupal card no longer sits
+  off to the left), and their price line was simplified to a single **"Gratis"** pill —
+  the full-report price lives inside each form, where it's already explained.
+- **Solar Code of the Day** moved to a slim, tappable ribbon at the very top of the hero
+  (expands to show the day's reading), so it's visible on load instead of buried below
+  the form.
+### Fixed
+- **Dropdown menus no longer shift the page sideways** when opened (`modal={false}` stops
+  Radix from locking the scrollbar).
+- **"Discover Your Code" / "Inicio" now scroll to the very top** (title + form together)
+  instead of jumping down to the form and clipping the title — fixed both on click and on
+  reload of `/#discover` (via `ScrollToTop`).
+
+## [0.8.0] — 2026-06-07
+### Added
+- **Expanded individual Full Report (€22)** so it feels complete, drawn from the book
+  (derivative text in the author's voice, not copied):
+  - "Your Gift & Your Growth Edge" — a strength + a constructive growth edge per Solar Seal
+    (all 20 archetypes).
+  - "Your Number in the Matrix" — explains the person's exact code, tramo and range within
+    the 144,000.
+  - "Your Daily Solar Practice" — the book's concrete rituals (SŌL mantra, 5:5:5:5 breathing,
+    solar vowels / 369 Hz, greeting the Sun).
+  - A symbolic/educational disclaimer (mirrors the book's).
+### Fixed
+- **Toast notifications now actually show** — the `Toaster` was never mounted, so form
+  validation errors (e.g. a missing date of birth) failed silently. This is why the
+  relational "calculate" button appeared to do nothing.
+### Changed
+- **Forms use the horizontal space on large screens**: the group form lays people out in two
+  columns (one column on phones); the individual form arranges its fields in two columns on
+  larger screens. Actions/headers stay centered and narrow.
+- **Native inputs match the dark theme**: `color-scheme: dark` + gold `accent-color` so the
+  time/date pickers, their highlight and the autofill background no longer turn white/blue
+  (the PDF stays light).
+- **Clearer pricing on the chooser**: cards now say "Free result/preview · full report €X"
+  instead of a bare price, so it's obvious what's free and what the paid report costs.
+
 ## [0.7.0] — 2026-06-07
 ### Changed
 - **Family and Team unified into a single "Grupal" report** (Pablo's call after seeing the

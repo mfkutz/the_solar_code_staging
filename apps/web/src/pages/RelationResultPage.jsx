@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import RitualReveal from '@/components/RitualReveal.jsx';
 import { ArrowLeft, Lock, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nProvider.jsx';
@@ -25,6 +26,7 @@ const RelationResultPage = () => {
   const { type } = useParams();
   const stored = useMemo(readStored, []);
   const rc = relationContent[lang];
+  const [revealing, setRevealing] = useState(true);
 
   const relation = useMemo(() => {
     if (!stored?.people?.length) return null;
@@ -52,7 +54,17 @@ const RelationResultPage = () => {
   };
 
   return (
-    <div className="min-h-screen pt-28 pb-24">
+    <>
+      <AnimatePresence>
+        {revealing && (
+          <RitualReveal
+            variant={type === 'pareja' ? 'couple' : 'group'}
+            onDone={() => setRevealing(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      <div className="min-h-screen pt-28 pb-24">
       <Helmet><title>{`${meta.label} — The Solar Code`}</title></Helmet>
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -65,6 +77,9 @@ const RelationResultPage = () => {
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
           className="text-center mb-10"
         >
+          <span className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-primary border border-primary/40 rounded-full px-3 py-1 mb-4">
+            {t('reports.previewFree')}
+          </span>
           <p className="text-sm uppercase tracking-widest text-muted-foreground mb-2">{meta.label}</p>
           <p className="text-sm uppercase tracking-wider text-muted-foreground mb-1">{t('relation.resultGreeting')}</p>
           <h1 className="text-6xl md:text-7xl font-bold text-primary text-glow mb-2">{relation.group.resonance}%</h1>
@@ -86,13 +101,15 @@ const RelationResultPage = () => {
           <h3 className="text-2xl font-bold text-primary mb-3" style={{ fontFamily: 'Playfair Display, serif' }}>
             {fill(t('relation.unlockTitle'), { label: meta.label })}
           </h3>
+          <p className="max-w-xl mx-auto mb-2 text-sm uppercase tracking-wider text-primary/90">{t('relation.previewNote')}</p>
           <p className="max-w-xl mx-auto mb-6 opacity-90 leading-relaxed">{t('relation.unlockText')}</p>
           <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90" onClick={handleUnlock}>
             <Sparkles className="w-4 h-4 mr-2" /> {t('relation.unlockCta')} · {pricing.price.display}
           </Button>
         </motion.div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

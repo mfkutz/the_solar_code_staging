@@ -3,6 +3,7 @@ import { Route, Routes, BrowserRouter as Router } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop.jsx';
 import Header from './components/Header.jsx';
 import Footer from './components/Footer.jsx';
+import { Toaster } from './components/ui/sonner.jsx';
 import HomePage from './pages/HomePage.jsx';
 import ResultPage from './pages/ResultPage.jsx';
 import ReportPage from './pages/ReportPage.jsx';
@@ -33,6 +34,7 @@ function App() {
         </main>
         <Footer />
       </div>
+      <Toaster richColors position="top-center" />
     </Router>
   );
 }

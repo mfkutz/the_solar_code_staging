@@ -13,6 +13,19 @@ export const reportContent = {
       'As the {tone} {seal}, you carry a rare signature: the Mayan rhythm of time woven with the {chineseElement} {animal} of the Chinese sky. Your elemental nature is {element} — and that is your bridge between worlds. Your Solar Code, {code}, is a unique frequency within the 144,000; no one else vibrates exactly as you do. Your work in this life is to embody this signature consciously and let it radiate.',
     closing:
       'You are a living code of light. Honor your archetype, move with your tone, balance your element, and walk the path of the Great Harmony. The Sun within you is already awake — let it shine. ☀️',
+    giftLabel: 'Your gift',
+    shadowLabel: 'Your growth edge',
+    numberMeaning:
+      'Your Solar Code is {code}, one frequency within the 144,000 codes of light. The matrix is read from 144,000 downward, in 60 stretches of 2,400 codes each; yours falls in stretch {tramo} ({rangeHigh}–{rangeLow}), the field of {element}. Out of 144,000 possibilities, this is the exact note your time and your day sound — and no one else vibrates on it quite the way you do.',
+    dailyTitle: 'Your Daily Solar Practice',
+    dailyIntro: 'A short daily ritual from The Solar Code to activate your frequency:',
+    daily: [
+      { name: 'The SŌL mantra', description: 'Intone “SŌL” slowly several times, feeling the sound light up your chest like an inner sun.' },
+      { name: 'Box breathing 5:5:5:5', description: 'Inhale for 5, hold 5, exhale 5, hold 5. A few rounds to enter coherence and presence.' },
+      { name: 'Solar vowels (369 Hz)', description: 'Sound the vowels A‑E‑I‑O‑U with intention, letting your voice become light and movement.' },
+      { name: 'Greet the Sun', description: 'At sunrise or sunset, take a few minutes of gentle sunlight and gratitude to anchor your code in the day.' },
+    ],
+    disclaimer: 'This reading is symbolic and educational. It does not replace medical, psychological or professional advice.',
     practices: {
       earth: [
         { name: 'Grounding', description: 'Walk barefoot on the earth daily to anchor your energy and steady your mind.' },
@@ -46,6 +59,19 @@ export const reportContent = {
       'Como {seal} de tono {tone}, portas una firma poco común: el ritmo maya del tiempo entrelazado con el {animal} de {chineseElement} del cielo chino. Tu naturaleza elemental es {element} — y ese es tu puente entre mundos. Tu Código Solar, {code}, es una frecuencia única dentro de los 144.000; nadie más vibra exactamente como tú. Tu trabajo en esta vida es encarnar esta firma conscientemente y dejar que irradie.',
     closing:
       'Eres un código viviente de luz. Honra tu arquetipo, muévete con tu tono, equilibra tu elemento y camina el sendero de la Gran Armonía. El Sol que llevas dentro ya está despierto — déjalo brillar. ☀️',
+    giftLabel: 'Tu don',
+    shadowLabel: 'Tu desafío',
+    numberMeaning:
+      'Tu Código Solar es {code}, una frecuencia dentro de los 144.000 códigos de luz. La matriz se lee de 144.000 hacia abajo, en 60 tramos de 2.400 códigos cada uno; el tuyo cae en el tramo {tramo} ({rangeHigh}–{rangeLow}), el campo del {element}. Entre 144.000 posibilidades, esta es la nota exacta que suenan tu tiempo y tu día — y nadie más vibra en ella exactamente como tú.',
+    dailyTitle: 'Tu Práctica Solar Diaria',
+    dailyIntro: 'Un ritual breve de The Solar Code para activar tu frecuencia cada día:',
+    daily: [
+      { name: 'El mantra SŌL', description: 'Entona “SŌL” lentamente varias veces, sintiendo el sonido encender tu pecho como un sol interior.' },
+      { name: 'Respiración 5:5:5:5', description: 'Inhala 5, retén 5, exhala 5, retén 5. Unas rondas para entrar en coherencia y presencia.' },
+      { name: 'Vocales solares (369 Hz)', description: 'Sonoriza las vocales A‑E‑I‑O‑U con intención, dejando que tu voz se vuelva luz y movimiento.' },
+      { name: 'Saludar al Sol', description: 'Al amanecer o al atardecer, tómate unos minutos de luz solar suave y gratitud para anclar tu código en el día.' },
+    ],
+    disclaimer: 'Esta lectura es simbólica y educativa. No reemplaza el asesoramiento médico, psicológico ni profesional.',
     practices: {
       earth: [
         { name: 'Enraizamiento', description: 'Camina descalzo sobre la tierra cada día para anclar tu energía y serenar la mente.' },

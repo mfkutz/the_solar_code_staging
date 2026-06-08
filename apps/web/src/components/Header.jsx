@@ -1,7 +1,19 @@
 import React, { useState } from 'react';
-import { Menu, Sun } from 'lucide-react';
+import { ChevronDown, Menu, Sun } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nProvider.jsx';
 
@@ -11,17 +23,29 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const navItems = [
-    { label: t('nav.home'), href: '#home' },
-    { label: t('nav.whatIs'), href: '#what-is' },
-    { label: t('nav.codes'), href: '#codes' },
-    { label: t('nav.discover'), href: '#discover' },
-    { label: t('nav.reports'), to: '/informes' },
-    { label: t('nav.elements'), href: '#elements' },
-    { label: t('nav.activation'), href: '#activation' },
-    { label: t('nav.dragon'), href: '#dragon' },
-    { label: t('nav.datong'), href: '#datong' },
-    { label: t('nav.join'), href: '#join' }
+  // Navigation is organized into two dropdown groups plus a couple of standalone
+  // entries, so the bar stays uncluttered and "Informes" reads as the CTA.
+  const home = { label: t('nav.home'), href: '#home' };
+  const discover = { label: t('nav.discover'), href: '#discover' };
+  const reports = { label: t('nav.reports'), to: '/informes' };
+  const groups = [
+    {
+      label: t('nav.theCode'),
+      items: [
+        { label: t('nav.whatIs'), href: '#what-is' },
+        { label: t('nav.codes'), href: '#codes' },
+        { label: t('nav.elements'), href: '#elements' },
+        { label: t('nav.activation'), href: '#activation' },
+      ],
+    },
+    {
+      label: t('nav.movement'),
+      items: [
+        { label: t('nav.dragon'), href: '#dragon' },
+        { label: t('nav.datong'), href: '#datong' },
+        { label: t('nav.join'), href: '#join' },
+      ],
+    },
   ];
 
   const handleNavClick = (item) => {
@@ -35,6 +59,12 @@ const Header = () => {
     // Anchor sections only exist on the homepage; route home first if elsewhere.
     if (location.pathname !== '/') {
       navigate(`/${href}`);
+      return;
+    }
+    // The discover form lives at the top of the hero, so scroll to the very top
+    // (showing the title + form together) instead of jumping down to the form.
+    if (href === '#discover' || href === '#home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
     const element = document.querySelector(href);
@@ -57,36 +87,89 @@ const Header = () => {
     </div>
   );
 
+  const navLinkClass =
+    'px-3 py-2 text-sm font-medium text-muted-foreground hover:text-primary transition-all duration-200 rounded-lg hover:bg-muted';
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          <a 
-            href="#home" 
-            onClick={(e) => { e.preventDefault(); handleNavClick('#home'); }}
-            className="flex items-center gap-3 group"
-          >
-            <Sun className="w-8 h-8 text-primary transition-transform duration-300 group-hover:rotate-90" />
-            <span className="text-xl font-bold text-primary" style={{ fontFamily: 'Playfair Display, serif' }}>
-              THE SOLAR CODE
-            </span>
-          </a>
+        <div className="flex items-center h-20 gap-4">
+          {/* Left: logo */}
+          <div className="flex-1 flex items-center">
+            <a
+              href="#home"
+              onClick={(e) => { e.preventDefault(); handleNavClick('#home'); }}
+              className="flex items-center gap-3 group"
+            >
+              <Sun className="w-8 h-8 text-primary transition-transform duration-300 group-hover:rotate-90" />
+              <span className="text-xl font-bold text-primary" style={{ fontFamily: 'Playfair Display, serif' }}>
+                THE SOLAR CODE
+              </span>
+            </a>
+          </div>
 
-          <nav className="hidden lg:flex items-center gap-1">
-            {navItems.map((item) => (
-              <a
-                key={item.href || item.to}
-                href={item.href || item.to}
-                onClick={(e) => { e.preventDefault(); handleNavClick(item); }}
-                className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-primary transition-all duration-200 rounded-lg hover:bg-muted"
-              >
-                {item.label}
-              </a>
-            ))}
-            <div className="ml-2"><LangToggle /></div>
+          {/* Center: desktop navigation */}
+          <nav className="hidden lg:flex items-center justify-center gap-1">
+            {/* "El Código" dropdown */}
+            <DropdownMenu modal={false}>
+              <DropdownMenuTrigger className={`${navLinkClass} inline-flex items-center gap-1 outline-none data-[state=open]:text-primary data-[state=open]:bg-muted`}>
+                {groups[0].label}
+                <ChevronDown className="w-4 h-4 transition-transform duration-200" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" className="bg-card border-border">
+                {groups[0].items.map((item) => (
+                  <DropdownMenuItem
+                    key={item.href}
+                    onClick={() => handleNavClick(item)}
+                    className="cursor-pointer text-muted-foreground focus:text-primary focus:bg-muted"
+                  >
+                    {item.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Standalone: Descubre tu Código */}
+            <a
+              href={discover.href}
+              onClick={(e) => { e.preventDefault(); handleNavClick(discover); }}
+              className={navLinkClass}
+            >
+              {discover.label}
+            </a>
+
+            {/* "Movimiento" dropdown */}
+            <DropdownMenu modal={false}>
+              <DropdownMenuTrigger className={`${navLinkClass} inline-flex items-center gap-1 outline-none data-[state=open]:text-primary data-[state=open]:bg-muted`}>
+                {groups[1].label}
+                <ChevronDown className="w-4 h-4 transition-transform duration-200" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" className="bg-card border-border">
+                {groups[1].items.map((item) => (
+                  <DropdownMenuItem
+                    key={item.href}
+                    onClick={() => handleNavClick(item)}
+                    className="cursor-pointer text-muted-foreground focus:text-primary focus:bg-muted"
+                  >
+                    {item.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Highlighted CTA: Informes */}
+            <Button
+              onClick={() => handleNavClick(reports)}
+              className="ml-2 bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              {reports.label}
+            </Button>
           </nav>
 
-          <div className="flex items-center gap-2 lg:hidden">
+          {/* Right: language toggle (desktop) + mobile controls */}
+          <div className="flex-1 flex items-center justify-end gap-2">
+            <div className="hidden lg:block"><LangToggle /></div>
+            <div className="flex items-center gap-2 lg:hidden">
             <LangToggle />
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
@@ -94,21 +177,58 @@ const Header = () => {
                   <Menu className="w-6 h-6" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] bg-card border-border">
-                <div className="flex flex-col gap-4 mt-8">
-                  {navItems.map((item) => (
-                    <a
-                      key={item.href || item.to}
-                      href={item.href || item.to}
-                      onClick={(e) => { e.preventDefault(); handleNavClick(item); }}
-                      className="px-4 py-3 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-lg transition-all duration-200"
-                    >
-                      {item.label}
-                    </a>
-                  ))}
+              <SheetContent side="right" className="w-[300px] bg-card border-border overflow-y-auto">
+                <div className="flex flex-col gap-2 mt-8">
+                  <a
+                    href={home.href}
+                    onClick={(e) => { e.preventDefault(); handleNavClick(home); }}
+                    className="px-4 py-3 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-lg transition-all duration-200"
+                  >
+                    {home.label}
+                  </a>
+
+                  <Accordion type="multiple" className="w-full">
+                    {groups.map((group) => (
+                      <AccordionItem key={group.label} value={group.label} className="border-border/50">
+                        <AccordionTrigger className="px-4 py-3 text-base font-medium text-foreground hover:text-primary hover:no-underline">
+                          {group.label}
+                        </AccordionTrigger>
+                        <AccordionContent className="pb-1">
+                          <div className="flex flex-col">
+                            {group.items.map((item) => (
+                              <a
+                                key={item.href}
+                                href={item.href}
+                                onClick={(e) => { e.preventDefault(); handleNavClick(item); }}
+                                className="pl-8 pr-4 py-2.5 text-sm text-muted-foreground hover:text-primary hover:bg-muted rounded-lg transition-all duration-200"
+                              >
+                                {item.label}
+                              </a>
+                            ))}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+
+                  <a
+                    href={discover.href}
+                    onClick={(e) => { e.preventDefault(); handleNavClick(discover); }}
+                    className="px-4 py-3 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-lg transition-all duration-200"
+                  >
+                    {discover.label}
+                  </a>
+
+                  <Button
+                    onClick={() => handleNavClick(reports)}
+                    className="mt-3 w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                  >
+                    {reports.label}
+                  </Button>
                 </div>
               </SheetContent>
             </Sheet>
+            </div>
           </div>
         </div>
       </div>
