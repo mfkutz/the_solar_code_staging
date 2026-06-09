@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Sun, ExternalLink } from 'lucide-react';
+import { Sun, ExternalLink, BookOpen } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nProvider.jsx';
 import { APP_VERSION, APP_COMMIT, BUILD_DATE } from '@/config/version.js';
 
@@ -52,6 +52,17 @@ const Footer = () => {
             <p className="text-sm leading-relaxed opacity-80 mb-4">
               {t('footer.connectText')}
             </p>
+            <a
+              href="https://amzn.eu/d/0dOo50Kg"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm font-medium text-primary border border-primary/40 rounded-full px-4 py-2 hover:bg-primary/10 transition-all duration-200"
+            >
+              <BookOpen className="w-4 h-4" />
+              {t('footer.bookCta')}
+              <ExternalLink className="w-3 h-3 opacity-70" />
+            </a>
+            <p className="text-xs opacity-60 mt-2">{t('footer.bookNote')}</p>
           </div>
         </div>
 

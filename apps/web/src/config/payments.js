@@ -7,11 +7,10 @@
 // Stripe's "after payment" redirect (set to /codigo/informe) brings them back.
 
 export const PAYMENT_LINKS = {
-  // TEST-mode link whose Stripe "after payment" redirect points at the staging
-  // Vercel URL (…vercel.app/codigo/informe), so the full pay→report flow can be
-  // tested on staging. When going Live, create the equivalent link in Live mode
-  // (redirecting to https://thesolarcode.com/codigo/informe) and replace this.
-  fullReport: 'https://buy.stripe.com/test_8x200keWA3yK6Eke1Ka3u01',
+  // Set VITE_STRIPE_FULL_REPORT (and the other vars below) in your .env to
+  // enable the Stripe redirect. Leave them empty/unset to bypass Stripe and
+  // preview the report flow locally without a real payment.
+  fullReport: import.meta.env.VITE_STRIPE_FULL_REPORT || '',
 };
 
 export const PRICES = {
@@ -40,15 +39,15 @@ export const REPORT_STORAGE_KEY = 'solarCodeReport';
 export const RELATIONAL_PRODUCTS = {
   pareja: {
     price: { amount: 44, currency: 'EUR', display: '€44' },
-    link: 'https://buy.stripe.com/test_dRm8wQ4hW1qC7Io2j2a3u02',
+    link: import.meta.env.VITE_STRIPE_PAREJA || '',
     people: { min: 2, max: 2 },
   },
   grupal: {
     // Pareja already covers 2 people, so Grupal starts at 3 (confirm with Pablo).
     people: { min: 3, max: 8 },
     tiers: [
-      { maxPeople: 5, price: { amount: 66, currency: 'EUR', display: '€66' }, link: 'https://buy.stripe.com/test_00w5kE15K2uG1k02j2a3u03' },
-      { maxPeople: 8, price: { amount: 88, currency: 'EUR', display: '€88' }, link: 'https://buy.stripe.com/test_bJedRacOsb1c0fW0aUa3u04' },
+      { maxPeople: 5, price: { amount: 66, currency: 'EUR', display: '€66' }, link: import.meta.env.VITE_STRIPE_GRUPAL_5 || '' },
+      { maxPeople: 8, price: { amount: 88, currency: 'EUR', display: '€88' }, link: import.meta.env.VITE_STRIPE_GRUPAL_8 || '' },
     ],
   },
   // tenis (€33, 2 people) — phase 2 expansion, not wired yet.

@@ -1,0 +1,26 @@
+# Local development Postgres for The Solar Code API.
+# Isolated from your system Postgres (mapped to host port 5435, not 5432).
+#   start:  docker compose up -d db
+#   stop:   docker compose down          (data survives in the named volume)
+#   reset:  docker compose down -v        (deletes the data volume)
+services:
+  db:
+    image: postgres:16
+    container_name: solarcode_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: solarcode
+      POSTGRES_PASSWORD: solarcode_dev
+      POSTGRES_DB: thesolarcode_dev
+    ports:
+      - "5435:5432"
+    volumes:
+      - solarcode_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U solarcode -d thesolarcode_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  solarcode_pgdata:

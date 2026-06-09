@@ -1,12 +1,14 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import RitualReveal from '@/components/RitualReveal.jsx';
-import { Sun, ArrowLeft, Lock, Share2 } from 'lucide-react';
+import { Sun, ArrowLeft, Lock, Share2, Save, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useI18n } from '@/i18n/I18nProvider.jsx';
+import { useAuth } from '@/auth/AuthProvider.jsx';
+import { api } from '@/lib/api.js';
 import { computeSolarCode } from '@/lib/solarcode';
 import { PAYMENT_LINKS, PRICES, REPORT_STORAGE_KEY } from '@/config/payments.js';
 import { seals } from '@/content/seals.js';
@@ -30,7 +32,11 @@ const ResultPage = () => {
   const [params] = useSearchParams();
   const birthdate = params.get('birthdate');
   const name = params.get('name') || '';
-  const [revealing, setRevealing] = useState(true);
+  const [revealing, setRevealing] = useState(() => params.get('saved') !== '1');
+  const { user, openAuth } = useAuth();
+  const [saved, setSaved] = useState(() => params.get('saved') === '1');
+  const [saving, setSaving] = useState(false);
+  const pendingSave = useRef(false);
 
   const result = useMemo(() => {
     if (!birthdate) return null;
@@ -46,6 +52,38 @@ const ResultPage = () => {
       return null;
     }
   }, [birthdate, name, params]);
+
+  const saveReading = useCallback(async () => {
+    if (!result) return;
+    setSaving(true);
+    try {
+      await api.post('/readings', { input: result.input, result });
+      setSaved(true);
+      toast.success(t('result.savedToast'));
+    } catch {
+      toast.error(t('result.saveError'));
+    } finally {
+      setSaving(false);
+    }
+  }, [result, t]);
+
+  // If the user hit "save" while logged out, finish the save once they sign in.
+  useEffect(() => {
+    if (user && pendingSave.current) {
+      pendingSave.current = false;
+      saveReading();
+    }
+  }, [user, saveReading]);
+
+  const handleSaveClick = () => {
+    if (saved) return;
+    if (!user) {
+      pendingSave.current = true;
+      openAuth('login', null);
+      return;
+    }
+    saveReading();
+  };
 
   if (!result) {
     return (
@@ -194,10 +232,21 @@ const ResultPage = () => {
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row justify-center gap-4 mt-10">
-          <Button variant="outline" onClick={handleShare} className="border-primary text-primary hover:bg-primary/10">
+          <Button
+            variant="outline"
+            onClick={handleSaveClick}
+            disabled={saving || saved}
+            className="border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
+          >
+            {saved
+              ? <><Check className="w-4 h-4 mr-2" /> {t('result.saved')}</>
+              : <><Save className="w-4 h-4 mr-2" /> {t('result.saveCta')}</>}
+          </Button>
+          <Button variant="outline" onClick={handleShare}
+            className="border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-colors">
             <Share2 className="w-4 h-4 mr-2" /> {t('result.shareCta')}
           </Button>
-          <Button asChild variant="ghost">
+          <Button asChild variant="ghost" className="text-muted-foreground hover:text-primary hover:bg-transparent">
             <Link to="/#discover">{t('common.recalculate')}</Link>
           </Button>
         </div>

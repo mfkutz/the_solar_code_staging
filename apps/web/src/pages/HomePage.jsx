@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { Sun, Sparkles, Zap, Wind, Droplet, Mountain, Flame, Circle, Heart, Brain, Leaf, Music, Globe, ArrowRight } from 'lucide-react';
+import { Sun, Sparkles, Zap, Wind, Droplet, Mountain, Flame, Circle, Heart, Brain, Leaf, Music, Globe, ArrowRight, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,6 +13,7 @@ import ActivationCard from '@/components/ActivationCard.jsx';
 import BirthForm from '@/components/BirthForm.jsx';
 import SolarCodeOfDay from '@/components/SolarCodeOfDay.jsx';
 import { useI18n } from '@/i18n/I18nProvider.jsx';
+import { api } from '@/lib/api.js';
 import { home } from '@/content/home.js';
 import { elements as elementsContent } from '@/content/elements.js';
 
@@ -47,6 +48,16 @@ const HomePage = () => {
   const c = home[lang];
 
   const [formData, setFormData] = useState({ name: '', email: '', country: '', birthdate: '', message: '' });
+  const [joined, setJoined] = useState(false);
+  const [bdParts, setBdParts] = useState({ d: '', m: '', y: '' });
+
+  const handleBdChange = (part) => (e) => {
+    const next = { ...bdParts, [part]: e.target.value };
+    setBdParts(next);
+    const { d, m, y } = next;
+    const combined = y && m && d ? `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}` : '';
+    setFormData((prev) => ({ ...prev, birthdate: combined }));
+  };
 
   const elements = ELEMENT_META.map((m) => ({
     ...m,
@@ -61,17 +72,18 @@ const HomePage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.email) {
       toast.error(c.join.errFill);
       return;
     }
-    const submissions = JSON.parse(localStorage.getItem('solarCodeSubmissions') || '[]');
-    submissions.push({ ...formData, timestamp: new Date().toISOString() });
-    localStorage.setItem('solarCodeSubmissions', JSON.stringify(submissions));
-    toast.success(c.join.success);
-    setFormData({ name: '', email: '', country: '', birthdate: '', message: '' });
+    try {
+      await api.post('/leads', formData);
+      setJoined(true);
+    } catch (err) {
+      toast.error(err?.message || c.join.error);
+    }
   };
 
   return (
@@ -280,37 +292,83 @@ const HomePage = () => {
             <SectionHeading title={c.join.title} subtitle={c.join.subtitle} />
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="max-w-2xl mx-auto">
               <div className="bg-card rounded-2xl p-8 md:p-12 border border-primary/30 shadow-lg cosmic-glow">
-                <p className="text-lg text-center mb-8 leading-relaxed">{c.join.intro}</p>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div>
-                    <Label htmlFor="join-name" className="text-foreground">{c.join.name} *</Label>
-                    <Input id="join-name" name="name" type="text" required value={formData.name} onChange={handleInputChange}
-                      className="mt-2 bg-input text-foreground placeholder:text-muted-foreground" placeholder={c.join.namePh} />
-                  </div>
-                  <div>
-                    <Label htmlFor="join-email" className="text-foreground">{c.join.email} *</Label>
-                    <Input id="join-email" name="email" type="email" required value={formData.email} onChange={handleInputChange}
-                      className="mt-2 bg-input text-foreground placeholder:text-muted-foreground" placeholder={c.join.emailPh} />
-                  </div>
-                  <div>
-                    <Label htmlFor="join-country" className="text-foreground">{c.join.country}</Label>
-                    <Input id="join-country" name="country" type="text" value={formData.country} onChange={handleInputChange}
-                      className="mt-2 bg-input text-foreground placeholder:text-muted-foreground" placeholder={c.join.countryPh} />
-                  </div>
-                  <div>
-                    <Label htmlFor="join-birthdate" className="text-foreground">{c.join.birthdate}</Label>
-                    <Input id="join-birthdate" name="birthdate" type="date" value={formData.birthdate} onChange={handleInputChange}
-                      className="mt-2 bg-input text-foreground" />
-                  </div>
-                  <div>
-                    <Label htmlFor="join-message" className="text-foreground">{c.join.message}</Label>
-                    <Textarea id="join-message" name="message" rows={4} value={formData.message} onChange={handleInputChange}
-                      className="mt-2 bg-input text-foreground placeholder:text-muted-foreground" placeholder={c.join.messagePh} />
-                  </div>
-                  <Button type="submit" size="lg" className="w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 active:scale-[0.98]">
-                    {c.join.submit}
-                  </Button>
-                </form>
+                {joined ? (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5 }}
+                    className="flex flex-col items-center text-center py-8 gap-4"
+                  >
+                    <CheckCircle className="w-16 h-16 text-primary" />
+                    <h3 className="text-2xl font-bold" style={{ fontFamily: 'Playfair Display, serif' }}>
+                      {c.join.successTitle}
+                    </h3>
+                    <p className="text-muted-foreground text-lg leading-relaxed">{c.join.successBody}</p>
+                  </motion.div>
+                ) : (
+                  <>
+                    <p className="text-lg text-center mb-6 leading-relaxed">{c.join.intro}</p>
+                    <ul className="flex flex-col gap-2 mb-8">
+                      {c.join.benefits.map((b) => (
+                        <li key={b} className="flex items-start gap-2 text-sm text-muted-foreground">
+                          <span className="text-primary mt-0.5">✦</span>
+                          <span>{b}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                      <div>
+                        <Label htmlFor="join-name" className="text-foreground">{c.join.name} *</Label>
+                        <Input id="join-name" name="name" type="text" required value={formData.name} onChange={handleInputChange}
+                          className="mt-2 bg-input text-foreground placeholder:text-muted-foreground" placeholder={c.join.namePh} />
+                      </div>
+                      <div>
+                        <Label htmlFor="join-email" className="text-foreground">{c.join.email} *</Label>
+                        <Input id="join-email" name="email" type="email" required value={formData.email} onChange={handleInputChange}
+                          className="mt-2 bg-input text-foreground placeholder:text-muted-foreground" placeholder={c.join.emailPh} />
+                      </div>
+                      <div>
+                        <Label htmlFor="join-country" className="text-foreground">{c.join.country}</Label>
+                        <Input id="join-country" name="country" type="text" value={formData.country} onChange={handleInputChange}
+                          className="mt-2 bg-input text-foreground placeholder:text-muted-foreground" placeholder={c.join.countryPh} />
+                      </div>
+                      <div>
+                        <Label className="text-foreground">{c.join.birthdate}</Label>
+                        <div className="mt-2 grid grid-cols-3 gap-2">
+                          <select value={bdParts.d} onChange={handleBdChange('d')}
+                            className="bg-input text-foreground border border-input rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                            <option value="">{c.join.bdDay}</option>
+                            {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
+                              <option key={d} value={String(d)}>{d}</option>
+                            ))}
+                          </select>
+                          <select value={bdParts.m} onChange={handleBdChange('m')}
+                            className="bg-input text-foreground border border-input rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                            <option value="">{c.join.bdMonth}</option>
+                            {c.join.months.map((name, i) => (
+                              <option key={i} value={String(i + 1)}>{name}</option>
+                            ))}
+                          </select>
+                          <select value={bdParts.y} onChange={handleBdChange('y')}
+                            className="bg-input text-foreground border border-input rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                            <option value="">{c.join.bdYear}</option>
+                            {Array.from({ length: new Date().getFullYear() - 1929 }, (_, i) => new Date().getFullYear() - i).map((y) => (
+                              <option key={y} value={String(y)}>{y}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <Label htmlFor="join-message" className="text-foreground">{c.join.message}</Label>
+                        <Textarea id="join-message" name="message" rows={4} value={formData.message} onChange={handleInputChange}
+                          className="mt-2 bg-input text-foreground placeholder:text-muted-foreground" placeholder={c.join.messagePh} />
+                      </div>
+                      <Button type="submit" size="lg" className="w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 active:scale-[0.98]">
+                        {c.join.submit}
+                      </Button>
+                    </form>
+                  </>
+                )}
               </div>
             </motion.div>
           </div>

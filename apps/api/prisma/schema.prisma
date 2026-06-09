@@ -1,0 +1,67 @@
+// Prisma schema — the single source of truth for the database.
+// Edit a model here, then run `npm run db:migrate -- --name <change>` to create
+// a versioned migration (committed to git) and apply it.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// A registered person. passwordHash is bcrypt — never store plain passwords.
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  name         String?
+  birthdate    String?
+  country      String?
+  memberNumber Int       @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  readings     Reading[]
+  sessions     Session[]
+}
+
+// A login session = one refresh-token "family". The row's id is the familyId
+// carried inside the refresh token. currentJti is the only refresh token that
+// may rotate; if an older jti shows up, it's a replay → revoke the family.
+model Session {
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  currentJti String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+}
+
+// A "Join the 144,000" signup — someone leaving their data to join the network.
+// Public (no account needed). email is unique so re-submitting updates the lead
+// instead of duplicating. Seeds the future mailing list.
+model Lead {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  country   String?
+  birthdate String?
+  message   String?
+  createdAt DateTime @default(now())
+}
+
+// One saved Solar Code consultation, so it shows up in the user's history.
+// input  = what they entered (name, birthdate, time, country...).
+// result = what the engine computed (kin, code, seal, tone, element...).
+model Reading {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  input     Json
+  result    Json
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}

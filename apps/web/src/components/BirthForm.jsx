@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sun, CalendarIcon } from 'lucide-react';
+import CountrySelect from '@/components/CountrySelect.jsx';
 import { es as esLocale, enUS } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -125,9 +126,13 @@ const BirthForm = () => {
         </div>
 
         <div>
-          <Label htmlFor="country">{t('form.country')}</Label>
-          <Input id="country" name="country" value={data.country} onChange={handleChange}
-            className="mt-2 bg-input" placeholder={t('form.countryPh')} />
+          <Label>{t('form.country')}</Label>
+          <div className="mt-2">
+            <CountrySelect
+              value={data.country}
+              onChange={(val) => setData((prev) => ({ ...prev, country: val }))}
+            />
+          </div>
         </div>
         <div>
           <Label htmlFor="city">{t('form.city')}</Label>

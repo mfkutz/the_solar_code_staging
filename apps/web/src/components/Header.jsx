@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { ChevronDown, Menu, Sun } from 'lucide-react';
+import { ChevronDown, History, LogOut, Menu, Sparkles, Sun, User } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,10 +16,12 @@ import {
 } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nProvider.jsx';
+import { useAuth } from '@/auth/AuthProvider.jsx';
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { t, lang, setLang } = useI18n();
+  const { user, loading, logout, openAuth } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -89,6 +91,50 @@ const Header = () => {
 
   const navLinkClass =
     'px-3 py-2 text-sm font-medium text-muted-foreground hover:text-primary transition-all duration-200 rounded-lg hover:bg-muted';
+
+  // Desktop account control: "Log in" when signed out, a user menu when signed in.
+  const AuthControl = () => {
+    if (loading) return null;
+    if (!user) {
+      return (
+        <Button
+          onClick={() => openAuth('login')}
+          className="bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium"
+        >
+          {t('nav.login')}
+        </Button>
+      );
+    }
+    return (
+      <DropdownMenu modal={false}>
+        <DropdownMenuTrigger className={`${navLinkClass} inline-flex items-center gap-2 outline-none data-[state=open]:text-primary data-[state=open]:bg-muted`}>
+          <User className="w-4 h-4" />
+          <span className="max-w-[12ch] truncate">{user.name || user.email}</span>
+          <ChevronDown className="w-4 h-4" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="bg-card border-border">
+          <DropdownMenuItem
+            onClick={() => navigate('/mi-codigo')}
+            className="cursor-pointer text-muted-foreground focus:text-primary focus:bg-muted"
+          >
+            <Sparkles className="w-4 h-4 mr-2" /> {t('nav.myCode')}
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => navigate('/historial')}
+            className="cursor-pointer text-muted-foreground focus:text-primary focus:bg-muted"
+          >
+            <History className="w-4 h-4 mr-2" /> {t('nav.history')}
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => { logout(); navigate('/'); }}
+            className="cursor-pointer text-muted-foreground focus:text-primary focus:bg-muted"
+          >
+            <LogOut className="w-4 h-4 mr-2" /> {t('nav.logout')}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
@@ -168,7 +214,10 @@ const Header = () => {
 
           {/* Right: language toggle (desktop) + mobile controls */}
           <div className="flex-1 flex items-center justify-end gap-2">
-            <div className="hidden lg:block"><LangToggle /></div>
+            <div className="hidden lg:flex items-center gap-2">
+              <LangToggle />
+              <AuthControl />
+            </div>
             <div className="flex items-center gap-2 lg:hidden">
             <LangToggle />
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -178,6 +227,7 @@ const Header = () => {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] bg-card border-border overflow-y-auto">
+                <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
                 <div className="flex flex-col gap-2 mt-8">
                   <a
                     href={home.href}
@@ -225,6 +275,47 @@ const Header = () => {
                   >
                     {reports.label}
                   </Button>
+
+                  {/* Account (mobile) */}
+                  {!loading && (
+                    <div className="mt-4 pt-4 border-t border-border/50 flex flex-col gap-1">
+                      {!user ? (
+                        <Button
+                          variant="outline"
+                          onClick={() => { setIsOpen(false); openAuth('login'); }}
+                          className="w-full justify-center"
+                        >
+                          {t('nav.login')}
+                        </Button>
+                      ) : (
+                        <>
+                          <span className="px-4 py-2 text-sm text-muted-foreground truncate">
+                            {user.name || user.email}
+                          </span>
+                          <a
+                            href="/mi-codigo"
+                            onClick={(e) => { e.preventDefault(); setIsOpen(false); navigate('/mi-codigo'); }}
+                            className="px-4 py-3 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-lg transition-all duration-200 inline-flex items-center"
+                          >
+                            <Sparkles className="w-4 h-4 mr-2" /> {t('nav.myCode')}
+                          </a>
+                          <a
+                            href="/historial"
+                            onClick={(e) => { e.preventDefault(); setIsOpen(false); navigate('/historial'); }}
+                            className="px-4 py-3 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-lg transition-all duration-200 inline-flex items-center"
+                          >
+                            <History className="w-4 h-4 mr-2" /> {t('nav.history')}
+                          </a>
+                          <button
+                            onClick={() => { setIsOpen(false); logout(); navigate('/'); }}
+                            className="text-left px-4 py-3 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-lg transition-all duration-200 inline-flex items-center"
+                          >
+                            <LogOut className="w-4 h-4 mr-2" /> {t('nav.logout')}
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
               </SheetContent>
             </Sheet>
