@@ -103,9 +103,11 @@ export default function DashboardPage() {
     setSaving(true);
     try {
       await api.patch('/auth/profile', { birthdate, ...(country && { country }) });
+      const result = computeSolarCode({ birthdate, name: user.name || '' });
+      await api.post('/readings', { input: result.input, result }).catch(() => {});
       setRevealing(true);
     } catch { setSaving(false); }
-  }, [bdParts, country]);
+  }, [bdParts, country, user]);
 
   const goToReport = useCallback((reportKey) => {
     if (reportKey === 'compat') { navigate('/informes'); return; }
