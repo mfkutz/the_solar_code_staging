@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Routes, BrowserRouter as Router } from 'react-router-dom';
+import { Route, Routes, Navigate, BrowserRouter as Router } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop.jsx';
 import Header from './components/Header.jsx';
 import Footer from './components/Footer.jsx';
@@ -10,7 +10,6 @@ import ResultPage from './pages/ResultPage.jsx';
 import ReportPage from './pages/ReportPage.jsx';
 import LegalPage from './pages/LegalPage.jsx';
 import ReportsPage from './pages/ReportsPage.jsx';
-import HistoryPage from './pages/HistoryPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import RelationFormPage from './pages/RelationFormPage.jsx';
 import RelationResultPage from './pages/RelationResultPage.jsx';
@@ -20,25 +19,32 @@ function App() {
   return (
     <Router>
       <ScrollToTop />
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/codigo" element={<ResultPage />} />
-            <Route path="/codigo/informe" element={<ReportPage />} />
-            <Route path="/informes" element={<ReportsPage />} />
-            <Route path="/mi-codigo" element={<DashboardPage />} />
-            <Route path="/historial" element={<HistoryPage />} />
-            <Route path="/conjunto/:type" element={<RelationFormPage />} />
-            <Route path="/conjunto/:type/resultado" element={<RelationResultPage />} />
-            <Route path="/conjunto/:type/informe" element={<RelationReportPage />} />
-            <Route path="/privacidad" element={<LegalPage docKey="privacy" />} />
-            <Route path="/terminos" element={<LegalPage docKey="terms" />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
+      <Routes>
+        {/* Full-screen dashboard — no Header/Footer */}
+        <Route path="/mi-codigo" element={<DashboardPage />} />
+
+        {/* All other pages share the standard shell */}
+        <Route path="*" element={
+          <div className="min-h-screen flex flex-col">
+            <Header />
+            <main className="flex-grow">
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/codigo" element={<ResultPage />} />
+                <Route path="/codigo/informe" element={<ReportPage />} />
+                <Route path="/informes" element={<ReportsPage />} />
+                <Route path="/historial" element={<Navigate to="/mi-codigo" replace />} />
+                <Route path="/conjunto/:type" element={<RelationFormPage />} />
+                <Route path="/conjunto/:type/resultado" element={<RelationResultPage />} />
+                <Route path="/conjunto/:type/informe" element={<RelationReportPage />} />
+                <Route path="/privacidad" element={<LegalPage docKey="privacy" />} />
+                <Route path="/terminos" element={<LegalPage docKey="terms" />} />
+              </Routes>
+            </main>
+            <Footer />
+          </div>
+        } />
+      </Routes>
       <AuthDialog />
       <Toaster richColors position="top-center" />
     </Router>

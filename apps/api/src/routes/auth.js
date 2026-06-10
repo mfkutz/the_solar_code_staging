@@ -29,6 +29,7 @@ const publicUser = (u) => ({
   birthdate: u.birthdate ?? null,
   country: u.country ?? null,
   memberNumber: u.memberNumber,
+  fullReportPurchased: u.fullReportPurchased ?? false,
 });
 
 // Start a new session (a refresh-token family) and set both cookies.
@@ -141,7 +142,7 @@ router.post('/logout-all', requireAuth, async (req, res) => {
 router.get('/me', requireAuth, async (req, res) => {
   const user = await prisma.user.findUnique({
     where: { id: req.user.id },
-    select: { id: true, email: true, name: true, birthdate: true, country: true, memberNumber: true, createdAt: true },
+    select: { id: true, email: true, name: true, birthdate: true, country: true, memberNumber: true, fullReportPurchased: true, createdAt: true },
   });
   if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
   res.json({ user });
@@ -159,7 +160,7 @@ router.patch('/profile', requireAuth, async (req, res) => {
   const user = await prisma.user.update({
     where: { id: req.user.id },
     data: parsed.data,
-    select: { id: true, email: true, name: true, birthdate: true, country: true, memberNumber: true, createdAt: true },
+    select: { id: true, email: true, name: true, birthdate: true, country: true, memberNumber: true, fullReportPurchased: true, createdAt: true },
   });
   res.json({ user });
 });

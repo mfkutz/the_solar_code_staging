@@ -21,8 +21,7 @@ export const ui = {
       login: 'Log in',
       register: 'Sign up',
       account: 'Account',
-      myCode: 'My Solar Code',
-      history: 'My history',
+      myCode: 'My Panel',
       logout: 'Log out',
     },
     auth: {
@@ -241,8 +240,7 @@ export const ui = {
       login: 'Entrar',
       register: 'Registrarse',
       account: 'Cuenta',
-      myCode: 'Mi Código Solar',
-      history: 'Mi historial',
+      myCode: 'Mi Panel',
       logout: 'Cerrar sesión',
     },
     auth: {

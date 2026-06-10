@@ -120,12 +120,6 @@ const Header = () => {
             <Sparkles className="w-4 h-4 mr-2" /> {t('nav.myCode')}
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => navigate('/historial')}
-            className="cursor-pointer text-muted-foreground focus:text-primary focus:bg-muted"
-          >
-            <History className="w-4 h-4 mr-2" /> {t('nav.history')}
-          </DropdownMenuItem>
-          <DropdownMenuItem
             onClick={() => { logout(); navigate('/'); }}
             className="cursor-pointer text-muted-foreground focus:text-primary focus:bg-muted"
           >
@@ -298,13 +292,6 @@ const Header = () => {
                             className="px-4 py-3 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-lg transition-all duration-200 inline-flex items-center"
                           >
                             <Sparkles className="w-4 h-4 mr-2" /> {t('nav.myCode')}
-                          </a>
-                          <a
-                            href="/historial"
-                            onClick={(e) => { e.preventDefault(); setIsOpen(false); navigate('/historial'); }}
-                            className="px-4 py-3 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-lg transition-all duration-200 inline-flex items-center"
-                          >
-                            <History className="w-4 h-4 mr-2" /> {t('nav.history')}
                           </a>
                           <button
                             onClick={() => { setIsOpen(false); logout(); navigate('/'); }}

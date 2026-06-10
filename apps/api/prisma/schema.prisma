@@ -19,10 +19,11 @@ model User {
   name         String?
   birthdate    String?
   country      String?
-  memberNumber Int       @default(autoincrement())
-  createdAt    DateTime  @default(now())
-  readings     Reading[]
-  sessions     Session[]
+  memberNumber         Int       @default(autoincrement())
+  fullReportPurchased  Boolean   @default(false)
+  createdAt            DateTime  @default(now())
+  readings             Reading[]
+  sessions             Session[]
 }
 
 // A login session = one refresh-token "family". The row's id is the familyId
