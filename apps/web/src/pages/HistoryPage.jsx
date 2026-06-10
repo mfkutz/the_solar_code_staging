@@ -114,7 +114,7 @@ const HistoryPage = () => {
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <Button asChild variant="outline" size="sm" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-colors">
-                      <Link to={`/codigo?${query}&saved=1`}>{t('history.open')} <ArrowRight className="w-4 h-4 ml-1" /></Link>
+                      <Link to={`/code?${query}&saved=1`}>{t('history.open')} <ArrowRight className="w-4 h-4 ml-1" /></Link>
                     </Button>
                     <Button
                       variant="ghost" size="icon"

@@ -14,6 +14,7 @@ import BirthForm from '@/components/BirthForm.jsx';
 import SolarCodeOfDay from '@/components/SolarCodeOfDay.jsx';
 import { useI18n } from '@/i18n/I18nProvider.jsx';
 import { api } from '@/lib/api.js';
+import CountrySelect from '@/components/CountrySelect.jsx';
 import { home } from '@/content/home.js';
 import { elements as elementsContent } from '@/content/elements.js';
 
@@ -329,8 +330,11 @@ const HomePage = () => {
                       </div>
                       <div>
                         <Label htmlFor="join-country" className="text-foreground">{c.join.country}</Label>
-                        <Input id="join-country" name="country" type="text" value={formData.country} onChange={handleInputChange}
-                          className="mt-2 bg-input text-foreground placeholder:text-muted-foreground" placeholder={c.join.countryPh} />
+                        <CountrySelect
+                          value={formData.country}
+                          onChange={(val) => setFormData((p) => ({ ...p, country: val }))}
+                          className="mt-2"
+                        />
                       </div>
                       <div>
                         <Label className="text-foreground">{c.join.birthdate}</Label>

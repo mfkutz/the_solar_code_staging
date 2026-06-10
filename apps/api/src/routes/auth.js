@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { z } from 'zod';
+import { randomBytes } from 'crypto';
 import { prisma } from '../lib/prisma.js';
+import { sendPasswordReset } from '../lib/email.js';
 import {
   hashPassword,
   verifyPassword,
@@ -24,12 +26,19 @@ const credentials = z.object({
   name: z.string().trim().min(1).optional(),
 });
 
+const adminEmails = () =>
+  (process.env.ADMIN_EMAIL || '').split(',').map((e) => e.trim().toLowerCase()).filter(Boolean);
+
 const publicUser = (u) => ({
   id: u.id, email: u.email, name: u.name,
   birthdate: u.birthdate ?? null,
   country: u.country ?? null,
   memberNumber: u.memberNumber,
-  fullReportPurchased: u.fullReportPurchased ?? false,
+  fullReportPurchased:   u.fullReportPurchased   ?? false,
+  coupleReportPurchased: u.coupleReportPurchased ?? false,
+  groupReportPurchased:  u.groupReportPurchased  ?? false,
+  tennisCredits: u.tennisCredits ?? 0,
+  isAdmin: adminEmails().includes(u.email?.toLowerCase()),
 });
 
 // Start a new session (a refresh-token family) and set both cookies.
@@ -55,12 +64,13 @@ router.post('/register', async (req, res) => {
     return res.status(400).json({ error: parsed.error.issues[0].message });
   }
   const { email, password, name } = parsed.data;
+  const country = typeof req.body.country === 'string' ? req.body.country.trim() || null : null;
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) return res.status(409).json({ error: 'Ese email ya está registrado' });
 
   const user = await prisma.user.create({
-    data: { email, passwordHash: await hashPassword(password), name: name ?? null },
+    data: { email, passwordHash: await hashPassword(password), name: name ?? null, country },
   });
   await issueSession(res, user);
   res.status(201).json({ user: publicUser(user) });
@@ -142,10 +152,30 @@ router.post('/logout-all', requireAuth, async (req, res) => {
 router.get('/me', requireAuth, async (req, res) => {
   const user = await prisma.user.findUnique({
     where: { id: req.user.id },
-    select: { id: true, email: true, name: true, birthdate: true, country: true, memberNumber: true, fullReportPurchased: true, createdAt: true },
+    select: { id: true, email: true, name: true, birthdate: true, country: true, memberNumber: true, fullReportPurchased: true, coupleReportPurchased: true, groupReportPurchased: true, tennisCredits: true, createdAt: true },
   });
   if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
-  res.json({ user });
+  res.json({ user: publicUser(user) });
+});
+
+router.post('/change-password', requireAuth, async (req, res) => {
+  const schema = z.object({
+    currentPassword: z.string().min(1),
+    newPassword: z.string().min(8, 'La nueva contraseña debe tener al menos 8 caracteres'),
+  });
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0].message });
+
+  const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+  if (!user || !(await verifyPassword(parsed.data.currentPassword, user.passwordHash))) {
+    return res.status(401).json({ error: 'La contraseña actual es incorrecta' });
+  }
+
+  await prisma.user.update({
+    where: { id: req.user.id },
+    data: { passwordHash: await hashPassword(parsed.data.newPassword) },
+  });
+  res.json({ ok: true });
 });
 
 router.patch('/profile', requireAuth, async (req, res) => {
@@ -160,9 +190,53 @@ router.patch('/profile', requireAuth, async (req, res) => {
   const user = await prisma.user.update({
     where: { id: req.user.id },
     data: parsed.data,
-    select: { id: true, email: true, name: true, birthdate: true, country: true, memberNumber: true, fullReportPurchased: true, createdAt: true },
+    select: { id: true, email: true, name: true, birthdate: true, country: true, memberNumber: true, fullReportPurchased: true, coupleReportPurchased: true, groupReportPurchased: true, tennisCredits: true, createdAt: true },
   });
-  res.json({ user });
+  res.json({ user: publicUser(user) });
+});
+
+// Request a password reset link. Always responds 200 to avoid leaking which
+// emails are registered. Invalidates any previous unused tokens for that user.
+router.post('/forgot-password', async (req, res) => {
+  const schema = z.object({ email: z.string().email() });
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: 'Email inválido' });
+
+  const user = await prisma.user.findUnique({ where: { email: parsed.data.email } });
+  if (user) {
+    await prisma.passwordReset.deleteMany({ where: { userId: user.id, usedAt: null } });
+
+    const token = randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
+    await prisma.passwordReset.create({ data: { userId: user.id, token, expiresAt } });
+
+    await sendPasswordReset({ to: user.email, token, name: user.name }).catch(() => {});
+  }
+
+  res.json({ ok: true });
+});
+
+// Consume the reset token and set a new password.
+router.post('/reset-password', async (req, res) => {
+  const schema = z.object({
+    token: z.string().min(1),
+    password: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres'),
+  });
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0].message });
+
+  const reset = await prisma.passwordReset.findUnique({ where: { token: parsed.data.token } });
+  if (!reset || reset.usedAt || reset.expiresAt < new Date()) {
+    return res.status(400).json({ error: 'El enlace es inválido o ya expiró' });
+  }
+
+  await prisma.$transaction([
+    prisma.passwordReset.update({ where: { id: reset.id }, data: { usedAt: new Date() } }),
+    prisma.user.update({ where: { id: reset.userId }, data: { passwordHash: await hashPassword(parsed.data.password) } }),
+    prisma.session.deleteMany({ where: { userId: reset.userId } }),
+  ]);
+
+  res.json({ ok: true });
 });
 
 export default router;

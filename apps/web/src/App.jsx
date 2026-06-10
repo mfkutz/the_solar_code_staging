@@ -14,14 +14,18 @@ import DashboardPage from './pages/DashboardPage.jsx';
 import RelationFormPage from './pages/RelationFormPage.jsx';
 import RelationResultPage from './pages/RelationResultPage.jsx';
 import RelationReportPage from './pages/RelationReportPage.jsx';
+import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
+import AdminPage from './pages/AdminPage.jsx';
 
 function App() {
   return (
     <Router>
       <ScrollToTop />
       <Routes>
-        {/* Full-screen dashboard — no Header/Footer */}
-        <Route path="/mi-codigo" element={<DashboardPage />} />
+        {/* Full-screen pages — no Header/Footer */}
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/admin" element={<AdminPage />} />
 
         {/* All other pages share the standard shell */}
         <Route path="*" element={
@@ -30,15 +34,15 @@ function App() {
             <main className="flex-grow">
               <Routes>
                 <Route path="/" element={<HomePage />} />
-                <Route path="/codigo" element={<ResultPage />} />
-                <Route path="/codigo/informe" element={<ReportPage />} />
-                <Route path="/informes" element={<ReportsPage />} />
-                <Route path="/historial" element={<Navigate to="/mi-codigo" replace />} />
-                <Route path="/conjunto/:type" element={<RelationFormPage />} />
-                <Route path="/conjunto/:type/resultado" element={<RelationResultPage />} />
-                <Route path="/conjunto/:type/informe" element={<RelationReportPage />} />
-                <Route path="/privacidad" element={<LegalPage docKey="privacy" />} />
-                <Route path="/terminos" element={<LegalPage docKey="terms" />} />
+                <Route path="/code" element={<ResultPage />} />
+                <Route path="/code/report" element={<ReportPage />} />
+                <Route path="/reports" element={<ReportsPage />} />
+                <Route path="/history" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/relation/:type" element={<RelationFormPage />} />
+                <Route path="/relation/:type/result" element={<RelationResultPage />} />
+                <Route path="/relation/:type/report" element={<RelationReportPage />} />
+                <Route path="/privacy" element={<LegalPage docKey="privacy" />} />
+                <Route path="/terms" element={<LegalPage docKey="terms" />} />
               </Routes>
             </main>
             <Footer />

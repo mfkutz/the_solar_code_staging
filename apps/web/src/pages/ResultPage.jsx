@@ -37,6 +37,7 @@ const ResultPage = () => {
   const [saved, setSaved] = useState(() => params.get('saved') === '1');
   const [saving, setSaving] = useState(false);
   const pendingSave = useRef(false);
+  const pendingUnlock = useRef(false);
 
   const result = useMemo(() => {
     if (!birthdate) return null;
@@ -67,13 +68,23 @@ const ResultPage = () => {
     }
   }, [result, t]);
 
-  // If the user hit "save" while logged out, finish the save once they sign in.
+  // Resume pending save or pending unlock after login.
   useEffect(() => {
-    if (user && pendingSave.current) {
+    if (!user) return;
+    if (pendingSave.current) {
       pendingSave.current = false;
       saveReading();
     }
-  }, [user, saveReading]);
+    if (pendingUnlock.current) {
+      pendingUnlock.current = false;
+      const link = PAYMENT_LINKS.fullReport;
+      if (link) {
+        window.location.href = `${link}?client_reference_id=${user.id}`;
+      } else {
+        navigate('/code/report');
+      }
+    }
+  }, [user, saveReading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSaveClick = () => {
     if (saved) return;
@@ -120,13 +131,16 @@ const ResultPage = () => {
     : `Your Solar Code places you in Tramo ${result.tramo.n} of the 144,000 matrix, within the element of ${element.name} (${tramoColor.name}): ${tramoData.energy}. ${tramoData.description} ${element.meaning}`;
 
   const handleUnlock = () => {
-    // Stash the birth data so the report page can read it after payment.
     window.localStorage.setItem(REPORT_STORAGE_KEY, JSON.stringify(result.input));
+    if (!user) {
+      pendingUnlock.current = true;
+      openAuth('register', null);
+      return;
+    }
     if (PAYMENT_LINKS.fullReport) {
-      window.location.href = PAYMENT_LINKS.fullReport; // → Stripe → redirects back to /codigo/informe
+      window.location.href = `${PAYMENT_LINKS.fullReport}?client_reference_id=${user.id}`;
     } else {
-      // No live link yet: preview the report flow locally.
-      navigate('/codigo/informe');
+      navigate('/code/report');
     }
   };
 
@@ -224,7 +238,7 @@ const ResultPage = () => {
             {t('result.unlockCta')} · {PRICES.fullReport.display}
           </Button>
           <p className="mt-5 text-sm opacity-80">
-            <Link to="/informes" className="underline underline-offset-4 hover:text-primary transition-colors">
+            <Link to="/reports" className="underline underline-offset-4 hover:text-primary transition-colors">
               {t('reports.moreOptions')}
             </Link>
           </p>

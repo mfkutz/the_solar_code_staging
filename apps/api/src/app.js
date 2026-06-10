@@ -7,6 +7,8 @@ import { prisma } from './lib/prisma.js';
 import authRouter from './routes/auth.js';
 import readingsRouter from './routes/readings.js';
 import leadsRouter from './routes/leads.js';
+import webhooksRouter from './routes/webhooks.js';
+import adminRouter from './routes/admin.js';
 
 // Shared rate-limit factory — returns a configured limiter middleware.
 function makeLimit({ windowMin, max, message }) {
@@ -40,6 +42,9 @@ export function createApp() {
   // not HTML, so CSP has no effect here. All other Helmet defaults apply.
   app.use(helmet({ contentSecurityPolicy: false }));
 
+  // --- Stripe webhook (raw body required — must be before express.json()) ---
+  app.use('/webhooks', webhooksRouter);
+
   // --- Body / cookies -------------------------------------------------------
   app.use(express.json({ limit: '64kb' }));
   app.use(cookieParser());
@@ -60,13 +65,17 @@ export function createApp() {
   const registerLimit = makeLimit({ windowMin: 60, max: 5,   message: 'Demasiados registros. Esperá una hora.' });
   const leadsLimit    = makeLimit({ windowMin: 60, max: 5,   message: 'Demasiados envíos. Esperá una hora.' });
 
-  app.use('/auth/login',    loginLimit);
-  app.use('/auth/register', registerLimit);
-  app.use('/leads',         leadsLimit);
+  const forgotLimit = makeLimit({ windowMin: 15, max: 3, message: 'Demasiados intentos. Esperá 15 minutos.' });
+
+  app.use('/auth/login',           loginLimit);
+  app.use('/auth/register',        registerLimit);
+  app.use('/auth/forgot-password', forgotLimit);
+  app.use('/leads',                leadsLimit);
 
   app.use('/auth', authRouter);
   app.use('/readings', readingsRouter);
   app.use('/leads', leadsRouter);
+  app.use('/admin', adminRouter);
 
   return app;
 }

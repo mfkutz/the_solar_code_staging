@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { DashCtx } from './DashCtx.js';
+import { useI18n } from '@/i18n/I18nProvider.jsx';
 import HarmonyMeter from '@/components/dashboard/HarmonyMeter.jsx';
 
 function elementDot(element) {
@@ -22,6 +23,10 @@ function AttrCard({ glyph, label, value, meta, color }) {
 
 export default function CodigoDelDiaSection() {
   const { dailyCode, userCode, resonanceWithDay } = useContext(DashCtx);
+  const { t } = useI18n();
+  const s = t('dashboard.dia');
+  const sb = t('dashboard.sidebar');
+
   const d = dailyCode;
   const res = resonanceWithDay;
 
@@ -32,8 +37,8 @@ export default function CodigoDelDiaSection() {
   return (
     <div className="db-section">
       <div className="db-page-head">
-        <div className="db-eyebrow">La energía de hoy</div>
-        <h1>Código del Día</h1>
+        <div className="db-eyebrow">{s.eyebrow}</div>
+        <h1>{sb.nav['dia']}</h1>
         {dateStr && <p className="db-sub">{dateStr}</p>}
       </div>
 
@@ -45,17 +50,22 @@ export default function CodigoDelDiaSection() {
           <div style={{ fontSize: 64, color: 'var(--db-gold-2)', filter: 'drop-shadow(0 0 14px var(--db-glow))' }}>{d.seal.glyph}</div>
         </div>
         <div className="db-hero-side">
-          <div className="db-arch-eyebrow">{d.seal.glyph} Kin {d.kin}</div>
+          <div className="db-arch-eyebrow">{d.seal.glyph} {s.kinLabel} {d.kin}</div>
           <h2 className="db-archetype" style={{ fontSize: 30 }}>{d.signature || `${d.seal.name} ${d.tone.name}`}</h2>
           <p className="db-hero-line">
-            Hoy la Red Solar vibra en {d.seal.name}, portador de {(d.powers[0] || '').toLowerCase()}. Es un día para {(d.tone.action || '').toLowerCase()} desde el elemento {d.elementDisplay.label}.
+            {s.heroLine(
+              d.seal.name,
+              (d.powers[0] || '').toLowerCase(),
+              (d.tone.action || '').toLowerCase(),
+              d.elementDisplay.label,
+            )}
           </p>
           <div className="db-hero-tags" style={{ marginTop: 16 }}>
             <span className="db-tag-el">
               <span style={{ background: elementDot(d.element), width: 7, height: 7, display: 'inline-block', borderRadius: '50%', marginRight: 6 }} />
               {d.elementDisplay.label}
             </span>
-            <span className="db-chip">Tono {d.tone.name}</span>
+            <span className="db-chip">{s.toneLabel} {d.tone.name}</span>
             {d.tone.essence && <span className="db-chip">{d.tone.essence}</span>}
           </div>
         </div>
@@ -63,10 +73,10 @@ export default function CodigoDelDiaSection() {
 
       {/* Attrs */}
       <div className="db-attr-grid" style={{ marginBottom: 24 }}>
-        <AttrCard glyph={d.seal.glyph} label="Sello del Día" value={d.seal.name} meta={d.powers[1]} />
-        <AttrCard glyph={d.toneNum ?? ((d.kin - 1) % 13) + 1} label="Tono" value={d.tone.name} meta={d.tone.action} color="var(--db-gold-2)" />
-        <AttrCard glyph={d.elementDisplay.glyph} label="Elemento" value={d.elementDisplay.label} color={elementDot(d.element)} />
-        <AttrCard glyph="◓" label="Kin" value={d.kin} meta="de 260" />
+        <AttrCard glyph={d.seal.glyph} label={s.cards.seal} value={d.seal.name} meta={d.powers[1]} />
+        <AttrCard glyph={d.toneNum ?? ((d.kin - 1) % 13) + 1} label={s.cards.tone} value={d.tone.name} meta={d.tone.action} color="var(--db-gold-2)" />
+        <AttrCard glyph={d.elementDisplay.glyph} label={s.cards.element} value={d.elementDisplay.label} color={elementDot(d.element)} />
+        <AttrCard glyph="◓" label={s.cards.kin} value={d.kin} meta={s.cards.kinOf} />
       </div>
 
       {/* Resonance with user */}
@@ -74,25 +84,25 @@ export default function CodigoDelDiaSection() {
         <div className="db-reading db-card glow">
           <div className="db-spread" style={{ alignItems: 'flex-start', flexWrap: 'wrap' }}>
             <div>
-              <div className="db-rb-eyebrow">Cómo te toca a vos</div>
-              <h3>Tu Resonancia con Hoy</h3>
+              <div className="db-rb-eyebrow">{s.resonanceEyebrow}</div>
+              <h3>{s.resonanceTitle}</h3>
             </div>
             <div style={{ minWidth: 230, flex: 1, maxWidth: 320 }}>
               <HarmonyMeter level={res.level} label={res.label} />
             </div>
           </div>
           <p className="db-rtext" style={{ marginTop: 18 }}>
-            Tu sello {userCode.seal.name} ({userCode.elementDisplay.label}) se encuentra con el {d.seal.name} del día ({d.elementDisplay.label}).{' '}
+            {s.resonanceMeets(userCode.seal.name, userCode.elementDisplay.label, d.seal.name, d.elementDisplay.label)}{' '}
             {res.compatible
-              ? `Es una corriente favorable: ${res.elementsLine}. Aprovechá el día para ${(d.tone.action || '').toLowerCase()} aquello que venís postergando — el cosmos te acompaña.`
-              : `Es un día de contraste consciente: ${res.elementsLine}. No fuerces; observá. La fricción de hoy te muestra dónde crecer.`}
+              ? s.resonanceFav(res.elementsLine, (d.tone.action || '').toLowerCase())
+              : s.resonanceContrast(res.elementsLine)}
           </p>
         </div>
       )}
 
       {!userCode && (
         <div className="db-reading db-card glow" style={{ textAlign: 'center', padding: 30 }}>
-          <p className="db-muted">Calculá tu Código Solar para ver cómo resonás con la energía de hoy.</p>
+          <p className="db-muted">{s.noCode}</p>
         </div>
       )}
     </div>

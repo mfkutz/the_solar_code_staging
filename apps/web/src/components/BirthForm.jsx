@@ -62,7 +62,7 @@ const BirthForm = () => {
     Object.entries(data).forEach(([k, v]) => {
       if (v) params.set(k, v);
     });
-    navigate(`/codigo?${params.toString()}`);
+    navigate(`/code?${params.toString()}`);
   };
 
   return (

@@ -35,7 +35,7 @@ const RelationFormPage = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-center px-4 pt-20">
         <p className="text-lg text-muted-foreground mb-6">404</p>
-        <Button asChild><Link to="/informes">{t('reports.title')}</Link></Button>
+        <Button asChild><Link to="/reports">{t('reports.title')}</Link></Button>
       </div>
     );
   }
@@ -60,7 +60,7 @@ const RelationFormPage = () => {
       return;
     }
     window.localStorage.setItem(RELATION_STORAGE_KEY, JSON.stringify({ type, people }));
-    navigate(`/conjunto/${type}/resultado`);
+    navigate(`/relation/${type}/result`);
   };
 
   return (
@@ -68,7 +68,7 @@ const RelationFormPage = () => {
       <Helmet><title>{`${meta.label} — The Solar Code`}</title></Helmet>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Link to="/informes" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary mb-8 transition-colors">
+        <Link to="/reports" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary mb-8 transition-colors">
           <ArrowLeft className="w-4 h-4" /> {t('reports.title')}
         </Link>
 
@@ -99,8 +99,8 @@ const RelationFormPage = () => {
               )}
             </div>
 
-            {type === 'grupal' && (
-              <Link to="/conjunto/pareja" className="inline-block mt-3 text-xs text-primary hover:underline">
+            {type === 'group' && (
+              <Link to="/relation/couple" className="inline-block mt-3 text-xs text-primary hover:underline">
                 {rc.twoPeopleHint}
               </Link>
             )}

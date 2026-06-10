@@ -13,8 +13,8 @@ export function AuthProvider({ children }) {
   // (header, or the "save your reading" prompt).
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState('login');
-  const [authRedirect, setAuthRedirect] = useState('/mi-codigo');
-  const openAuth = useCallback((mode = 'login', redirectTo = '/mi-codigo') => {
+  const [authRedirect, setAuthRedirect] = useState('/dashboard');
+  const openAuth = useCallback((mode = 'login', redirectTo = '/dashboard') => {
     setAuthMode(mode);
     setAuthRedirect(redirectTo);
     setAuthOpen(true);
@@ -34,8 +34,8 @@ export function AuthProvider({ children }) {
     return d.user;
   }, []);
 
-  const register = useCallback(async ({ email, password, name }) => {
-    const d = await api.post('/auth/register', { email, password, name });
+  const register = useCallback(async ({ email, password, name, country }) => {
+    const d = await api.post('/auth/register', { email, password, name, country });
     setUser(d.user);
     return d.user;
   }, []);
@@ -45,8 +45,12 @@ export function AuthProvider({ children }) {
     setUser(null);
   }, []);
 
+  const updateUser = useCallback((patch) => {
+    setUser((u) => u ? { ...u, ...patch } : u);
+  }, []);
+
   const value = {
-    user, loading, login, register, logout,
+    user, loading, login, register, logout, updateUser,
     authOpen, authMode, authRedirect, openAuth, closeAuth,
   };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

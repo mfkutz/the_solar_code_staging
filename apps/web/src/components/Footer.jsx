@@ -71,10 +71,10 @@ const Footer = () => {
             © {new Date().getFullYear()} The Solar Code. {t('footer.rights')}
           </p>
           <div className="flex gap-6">
-            <Link to="/privacidad" className="text-sm opacity-70 hover:opacity-100 hover:text-primary transition-all duration-200">
+            <Link to="/privacy" className="text-sm opacity-70 hover:opacity-100 hover:text-primary transition-all duration-200">
               {t('footer.privacy')}
             </Link>
-            <Link to="/terminos" className="text-sm opacity-70 hover:opacity-100 hover:text-primary transition-all duration-200">
+            <Link to="/terms" className="text-sm opacity-70 hover:opacity-100 hover:text-primary transition-all duration-200">
               {t('footer.terms')}
             </Link>
           </div>

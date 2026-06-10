@@ -12,10 +12,12 @@ export default function CountrySelect({ value, onChange, placeholder }) {
   const { lang } = useI18n();
   const [open, setOpen] = useState(false);
 
-  const selected = useMemo(
-    () => countries.find((c) => c.en === value),
-    [value]
-  );
+  const selected = useMemo(() => {
+    if (!value) return null;
+    return countries.find((c) => c.en === value)
+      ?? countries.find((c) => c.en.toLowerCase() === value.toLowerCase())
+      ?? null;
+  }, [value]);
 
   const label = placeholder || (lang === 'es' ? 'Seleccioná tu país' : 'Select your country');
 
@@ -26,7 +28,7 @@ export default function CountrySelect({ value, onChange, placeholder }) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between bg-input border-input text-foreground font-normal hover:bg-input/80 h-10"
+          className="w-full justify-between bg-input border-input text-foreground font-normal hover:bg-input/80 hover:text-foreground h-10"
         >
           {selected ? (
             <span className="flex items-center gap-2">

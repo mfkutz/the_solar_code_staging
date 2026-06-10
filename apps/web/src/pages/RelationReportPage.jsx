@@ -41,7 +41,7 @@ const RelationReportPage = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-center px-4 pt-20">
         <p className="text-lg text-muted-foreground mb-6">{t('relation.calcFirst')}</p>
-        <Button asChild><Link to="/informes">{t('reports.title')}</Link></Button>
+        <Button asChild><Link to="/reports">{t('reports.title')}</Link></Button>
       </div>
     );
   }
@@ -98,7 +98,7 @@ const RelationReportPage = () => {
 
         <div className="flex justify-center">
           <Button asChild variant="outline" className="border-primary text-primary hover:bg-primary/10">
-            <Link to="/informes"><Sparkles className="w-4 h-4 mr-2" /> {t('reports.title')}</Link>
+            <Link to="/reports"><Sparkles className="w-4 h-4 mr-2" /> {t('reports.title')}</Link>
           </Button>
         </div>
       </div>

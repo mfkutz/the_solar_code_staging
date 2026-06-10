@@ -6,8 +6,8 @@
 export const relationContent = {
   en: {
     types: {
-      pareja: { label: 'Couple', tagline: 'The resonance between two souls', minNote: '2 people' },
-      grupal: { label: 'Group', tagline: 'The harmony of your circle, family or team', minNote: '3 or more people' },
+      couple: { label: 'Couple', tagline: 'The resonance between two souls', minNote: '2 people' },
+      group: { label: 'Group', tagline: 'The harmony of your circle, family or team', minNote: '3 or more people' },
     },
     addPerson: 'Add a person',
     removePerson: 'Remove',
@@ -41,8 +41,8 @@ export const relationContent = {
   },
   es: {
     types: {
-      pareja: { label: 'Pareja', tagline: 'La resonancia entre dos almas', minNote: '2 personas' },
-      grupal: { label: 'Grupal', tagline: 'La armonía de tu círculo, familia o equipo', minNote: '3 o más personas' },
+      couple: { label: 'Pareja', tagline: 'La resonancia entre dos almas', minNote: '2 personas' },
+      group: { label: 'Grupal', tagline: 'La armonía de tu círculo, familia o equipo', minNote: '3 o más personas' },
     },
     addPerson: 'Agregar persona',
     removePerson: 'Quitar',

@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import RitualReveal from '@/components/RitualReveal.jsx';
 import { useAuth } from '@/auth/AuthProvider.jsx';
+import { useI18n } from '@/i18n/I18nProvider.jsx';
 import { api } from '@/lib/api.js';
 import { computeSolarCode } from '@/lib/solarcode/index.js';
 import { enrichCode, getDailyCode, computeResonance } from '@/lib/dashboardData.js';
@@ -20,18 +21,23 @@ import CodigoDelDiaSection from './dashboard/CodigoDelDiaSection.jsx';
 import CompatibilidadSection from './dashboard/CompatibilidadSection.jsx';
 import HistorialSection from './dashboard/HistorialSection.jsx';
 import MisInformesSection from './dashboard/MisInformesSection.jsx';
+import AjustesSection from './dashboard/AjustesSection.jsx';
+import ConjuntosSection from './dashboard/ConjuntosSection.jsx';
 
 const SECTIONS = {
   'mi-codigo':      MiCodigoSection,
   'dia':            CodigoDelDiaSection,
   'compatibilidad': CompatibilidadSection,
   'historial':      HistorialSection,
+  'conjuntos':      ConjuntosSection,
   'informes':       MisInformesSection,
+  'ajustes':        AjustesSection,
 };
 
 const SECTION_TITLES = {
   'mi-codigo': 'Mi Código Solar', 'dia': 'Código del Día',
-  'compatibilidad': 'Compatibilidad', 'historial': 'Historial', 'informes': 'Mis Informes',
+  'compatibilidad': 'Compatibilidad', 'historial': 'Historial',
+  'conjuntos': 'Lecturas Grupales', 'informes': 'Mis Informes', 'ajustes': 'Ajustes',
 };
 
 // Birthdate capture form (shown if user has no birthdate yet)
@@ -48,7 +54,7 @@ function BirthdatePrompt({ onSaved }) {
     try {
       await api.patch('/auth/profile', { birthdate });
       const raw = computeSolarCode({ birthdate, name: user.name || '' });
-      await api.post('/readings', { input: raw.input, result: raw }).catch(() => {});
+      await api.post('/readings', { input: { ...raw.input, kind: 'personal' }, result: raw }).catch(() => {});
       onSaved(birthdate);
     } catch { setSaving(false); }
   };
@@ -103,6 +109,17 @@ function BirthdatePrompt({ onSaved }) {
   );
 }
 
+function memberFloor() {
+  const launch = new Date('2026-03-22').getTime();
+  const days   = Math.max(0, Math.floor((Date.now() - launch) / 86_400_000));
+  let count = 8800;
+  for (let i = 0; i < days; i++) {
+    const frac = (Math.abs(Math.sin(i * 127.1 + 311.7)) * 43758.5453) % 1;
+    count += 3 + Math.floor(frac * 4); // 3–6 per day
+  }
+  return Math.max(count, 9200);
+}
+
 export default function DashboardPage() {
   const { user, loading } = useAuth();
 
@@ -113,12 +130,13 @@ export default function DashboardPage() {
 }
 
 function DashboardInner() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
+  const { lang } = useI18n();
   const mainRef = useRef(null);
 
   const [section, setSection]   = useState('mi-codigo');
   const [navOpen, setNavOpen]   = useState(false);
-  const [members, setMembers]   = useState(12847);
+  const [members, setMembers]   = useState(memberFloor);
   const [toasts, setToasts]     = useState([]);
   const [payment, setPayment]   = useState(null);
   const [reports, setReports]   = useState([]);
@@ -132,17 +150,15 @@ function DashboardInner() {
     if (!user?.birthdate) return null;
     try {
       const raw = computeSolarCode({ birthdate: user.birthdate, name: user.name || '' });
-      return enrichCode(raw, user.name || 'Anónimo');
+      return enrichCode(raw, user.name || (lang === 'en' ? 'Anonymous' : 'Anónimo'), lang);
     } catch { return null; }
-  }, [user?.birthdate, user?.name]);
+  }, [user?.birthdate, user?.name, lang]);
 
-  // Daily code (memoized for the day — stable until page reload)
-  const dailyCode = useMemo(() => getDailyCode(), []);
+  const dailyCode = useMemo(() => getDailyCode(lang), [lang]);
 
-  // Resonance between user and today
   const resonanceWithDay = useMemo(
-    () => (userCode ? computeResonance(userCode, dailyCode) : null),
-    [userCode, dailyCode]
+    () => (userCode ? computeResonance(userCode, dailyCode, lang) : null),
+    [userCode, dailyCode, lang]
   );
 
   // Show birthdate prompt if no code yet
@@ -150,27 +166,27 @@ function DashboardInner() {
     if (!user?.birthdate) setShowBdPrompt(true);
   }, [user?.birthdate]);
 
-  // Live member ticker
+  // Member count — deterministic floor by date + real count if higher
   useEffect(() => {
-    api.get('/stats').then((s) => setMembers(s.userCount ?? 12847)).catch(() => {});
-    const t = setInterval(
-      () => setMembers((m) => m + (Math.random() < 0.6 ? 1 : 0) + (Math.random() < 0.15 ? 1 : 0)),
-      3800
-    );
-    return () => clearInterval(t);
+    const floor = memberFloor();
+    api.get('/stats').then((s) => setMembers(Math.max(s.userCount ?? 0, floor))).catch(() => {});
   }, []);
 
   // Load history from API
   useEffect(() => {
     api.get('/readings')
       .then((d) => {
-        // Map API readings to dashboard history format
-        const uCode = user?.birthdate ? (() => { try { return enrichCode(computeSolarCode({ birthdate: user.birthdate, name: user.name || '' }), user.name || ''); } catch { return null; } })() : null;
+        const uCode = user?.birthdate ? (() => { try { return enrichCode(computeSolarCode({ birthdate: user.birthdate, name: user.name || '' }), user.name || '', lang); } catch { return null; } })() : null;
         const items = (d.readings || []).map((r) => {
           try {
+            if (r.input?.kind === 'tennis') {
+              const adv = r.result?.adv;
+              if (!adv?.a) return null;
+              return { id: r.id, kind: 'tennis', code: adv.a, codeB: adv.b, adv, createdAt: new Date(r.createdAt).getTime() };
+            }
             const kind = r.input?.kind === 'compat' ? 'compat' : 'personal';
-            const enriched = enrichCode(r.result, r.input?.name || '—');
-            const resonance = (kind === 'compat' && uCode) ? computeResonance(uCode, enriched) : null;
+            const enriched = enrichCode(r.result, r.input?.name || '—', lang);
+            const resonance = (kind === 'compat' && uCode) ? computeResonance(uCode, enriched, lang) : null;
             return { id: r.id, kind, code: enriched, resonance, createdAt: new Date(r.createdAt).getTime() };
           } catch { return null; }
         }).filter(Boolean);
@@ -178,7 +194,7 @@ function DashboardInner() {
         setTennisUsed((d.readings || []).filter(r => r.input?.kind === 'tennis').length);
       })
       .catch(() => {});
-  }, [user]);
+  }, [user, lang]);
 
   const toast = useCallback((msg, icon) => {
     const id = Math.random().toString(36).slice(2);
@@ -214,10 +230,13 @@ function DashboardInner() {
     setPayment(data);
   }, [user]);
 
+  const onRevealDone = useCallback(() => setRevealing(false), []);
+
   const handleBdSaved = useCallback((birthdate) => {
     setShowBdPrompt(false);
+    updateUser({ birthdate });
     setRevealing(true);
-  }, []);
+  }, [updateUser]);
 
   const SectionComponent = SECTIONS[section];
 
@@ -228,13 +247,14 @@ function DashboardInner() {
     openPayment, toast,
     setSection: nav,
     tennisUsed, incTennisUsed,
+    lang,
   };
 
   return (
     <>
       <AnimatePresence>
         {revealing && (
-          <RitualReveal variant="solo" onDone={() => window.location.reload()} />
+          <RitualReveal variant="solo" onDone={onRevealDone} duration={4500} />
         )}
       </AnimatePresence>
 

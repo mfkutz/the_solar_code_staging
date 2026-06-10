@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -6,6 +6,7 @@ import RitualReveal from '@/components/RitualReveal.jsx';
 import { ArrowLeft, Lock, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nProvider.jsx';
+import { useAuth } from '@/auth/AuthProvider.jsx';
 import { computeRelation } from '@/lib/solarcode/relations.js';
 import PersonSolarCard from '@/components/PersonSolarCard.jsx';
 import { isRelationType, relationPricing, RELATION_STORAGE_KEY } from '@/config/payments.js';
@@ -24,32 +25,54 @@ const RelationResultPage = () => {
   const { t, lang } = useI18n();
   const navigate = useNavigate();
   const { type } = useParams();
+  const { user, openAuth } = useAuth();
   const stored = useMemo(readStored, []);
   const rc = relationContent[lang];
   const [revealing, setRevealing] = useState(true);
+  const pendingUnlock = useRef(false);
 
   const relation = useMemo(() => {
     if (!stored?.people?.length) return null;
     try { return computeRelation(stored.people); } catch { return null; }
   }, [stored]);
 
+  const pricing = useMemo(
+    () => relation ? relationPricing(type, relation.people.length) : null,
+    [relation, type]
+  );
+
+  // After login, auto-fire the Stripe redirect that was interrupted
+  useEffect(() => {
+    if (!user || !pendingUnlock.current || !pricing) return;
+    pendingUnlock.current = false;
+    if (pricing.link) {
+      window.location.href = `${pricing.link}?client_reference_id=${user.id}`;
+    } else {
+      navigate(`/relation/${type}/report`);
+    }
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+
   if (!isRelationType(type) || !relation) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-center px-4 pt-20">
         <p className="text-lg text-muted-foreground mb-6">{t('relation.calcFirst')}</p>
-        <Button asChild><Link to={`/conjunto/${isRelationType(type) ? type : ''}`}>{t('reports.startCta')}</Link></Button>
+        <Button asChild><Link to={`/relation/${isRelationType(type) ? type : ''}`}>{t('reports.startCta')}</Link></Button>
       </div>
     );
   }
 
   const meta = rc.types[type];
-  const pricing = relationPricing(type, relation.people.length);
 
   const handleUnlock = () => {
+    if (!user) {
+      pendingUnlock.current = true;
+      openAuth('register', null);
+      return;
+    }
     if (pricing.link) {
-      window.location.href = pricing.link; // → Stripe → redirect back to the report
+      window.location.href = `${pricing.link}?client_reference_id=${user.id}`;
     } else {
-      navigate(`/conjunto/${type}/informe`); // no live link yet: preview
+      navigate(`/relation/${type}/report`);
     }
   };
 
@@ -58,7 +81,7 @@ const RelationResultPage = () => {
       <AnimatePresence>
         {revealing && (
           <RitualReveal
-            variant={type === 'pareja' ? 'couple' : 'group'}
+            variant={type === 'couple' ? 'couple' : 'group'}
             onDone={() => setRevealing(false)}
           />
         )}
@@ -68,7 +91,7 @@ const RelationResultPage = () => {
       <Helmet><title>{`${meta.label} — The Solar Code`}</title></Helmet>
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Link to={`/conjunto/${type}`} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary mb-8 transition-colors">
+        <Link to={`/relation/${type}`} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary mb-8 transition-colors">
           <ArrowLeft className="w-4 h-4" /> {t('relation.backToForm')}
         </Link>
 

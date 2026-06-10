@@ -14,12 +14,28 @@ const readingSchema = z.object({
   result: z.record(z.any()),
 });
 
+const TENNIS_FREE_LIMIT = 1;
+
 // Save a consultation to the user's history.
 router.post('/', async (req, res) => {
   const parsed = readingSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ error: 'Datos de la lectura inválidos' });
   }
+
+  if (parsed.data.input?.kind === 'tennis') {
+    const tennisCount = await prisma.reading.count({
+      where: { userId: req.user.id, input: { path: ['kind'], equals: 'tennis' } },
+    });
+    if (tennisCount >= TENNIS_FREE_LIMIT) {
+      const user = await prisma.user.findUnique({ where: { id: req.user.id }, select: { tennisCredits: true } });
+      if (!user || user.tennisCredits <= 0) {
+        return res.status(402).json({ error: 'Sin créditos de tenis. Comprá un paquete para continuar.' });
+      }
+      await prisma.user.update({ where: { id: req.user.id }, data: { tennisCredits: { decrement: 1 } } });
+    }
+  }
+
   const reading = await prisma.reading.create({
     data: { userId: req.user.id, input: parsed.data.input, result: parsed.data.result },
   });

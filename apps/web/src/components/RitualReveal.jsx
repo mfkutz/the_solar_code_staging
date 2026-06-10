@@ -22,8 +22,8 @@ function SoloScene() {
         <motion.span
           key={`ring-${i}`}
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/25"
-          initial={{ width: 40, height: 40, opacity: 0.45 }}
-          animate={{ width: 720, height: 720, opacity: 0 }}
+          initial={{ width: 40, height: 40, opacity: 0 }}
+          animate={{ width: 720, height: 720, opacity: [0.45, 0] }}
           transition={{ duration: 4, delay: i * 1, repeat: Infinity, ease: 'easeOut' }}
         />
       ))}
@@ -206,14 +206,16 @@ const RitualReveal = ({ onDone, duration = 8800, variant = 'solo' }) => {
   const phrases = t(PHRASE_KEY[variant] || 'ritual.phrases');
   const Scene = SCENES[variant] || SoloScene;
   const [phase, setPhase] = useState(0);
-  const finished = useRef(false);
+  const finished  = useRef(false);
+  const onDoneRef = useRef(onDone);
+  useEffect(() => { onDoneRef.current = onDone; }, [onDone]);
 
-  // Fire onDone at most once (timer or tap-to-skip, whichever comes first).
+  // Stable — never changes reference, so the timer useEffect runs only once.
   const finish = useCallback(() => {
     if (finished.current) return;
     finished.current = true;
-    onDone();
-  }, [onDone]);
+    onDoneRef.current();
+  }, []);
 
   useEffect(() => {
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;

@@ -4,13 +4,16 @@
 // While the link is empty, the "unlock" button navigates straight to the report
 // page so the whole flow can be previewed locally without a real payment. Once
 // you paste the live link, the button will send users to Stripe to pay, and
-// Stripe's "after payment" redirect (set to /codigo/informe) brings them back.
+// Stripe's "after payment" redirect (set to /code/report) brings them back.
 
 export const PAYMENT_LINKS = {
-  // Set VITE_STRIPE_FULL_REPORT (and the other vars below) in your .env to
-  // enable the Stripe redirect. Leave them empty/unset to bypass Stripe and
-  // preview the report flow locally without a real payment.
-  fullReport: import.meta.env.VITE_STRIPE_FULL_REPORT || '',
+  // Set VITE_STRIPE_* in your .env to enable Stripe redirects.
+  // Leave empty to bypass Stripe and preview flows locally without paying.
+  fullReport:     import.meta.env.VITE_STRIPE_FULL_REPORT      || '',
+  tennisCredits:  import.meta.env.VITE_STRIPE_TENNIS_CREDITS   || '',
+  // Stripe metadata required: product=couple_report / product=group_report
+  coupleReport:   import.meta.env.VITE_STRIPE_COUPLE           || '',
+  groupReport:    import.meta.env.VITE_STRIPE_GROUP_5          || '',
 };
 
 export const PRICES = {
@@ -37,17 +40,17 @@ export const REPORT_STORAGE_KEY = 'solarCodeReport';
 // people = { min, max } number of people the form allows
 // tiers  = (grupal only) [{ maxPeople, price, link }] sorted ascending
 export const RELATIONAL_PRODUCTS = {
-  pareja: {
+  couple: {
     price: { amount: 44, currency: 'EUR', display: '€44' },
-    link: import.meta.env.VITE_STRIPE_PAREJA || '',
+    link: import.meta.env.VITE_STRIPE_COUPLE || '',
     people: { min: 2, max: 2 },
   },
-  grupal: {
-    // Pareja already covers 2 people, so Grupal starts at 3 (confirm with Pablo).
+  group: {
+    // Couple already covers 2 people, so Group starts at 3 (confirm with Pablo).
     people: { min: 3, max: 8 },
     tiers: [
-      { maxPeople: 5, price: { amount: 66, currency: 'EUR', display: '€66' }, link: import.meta.env.VITE_STRIPE_GRUPAL_5 || '' },
-      { maxPeople: 8, price: { amount: 88, currency: 'EUR', display: '€88' }, link: import.meta.env.VITE_STRIPE_GRUPAL_8 || '' },
+      { maxPeople: 5, price: { amount: 66, currency: 'EUR', display: '€66' }, link: import.meta.env.VITE_STRIPE_GROUP_5 || '' },
+      { maxPeople: 8, price: { amount: 88, currency: 'EUR', display: '€88' }, link: import.meta.env.VITE_STRIPE_GROUP_8 || '' },
     ],
   },
   // tenis (€33, 2 people) — phase 2 expansion, not wired yet.

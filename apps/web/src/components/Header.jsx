@@ -29,7 +29,7 @@ const Header = () => {
   // entries, so the bar stays uncluttered and "Informes" reads as the CTA.
   const home = { label: t('nav.home'), href: '#home' };
   const discover = { label: t('nav.discover'), href: '#discover' };
-  const reports = { label: t('nav.reports'), to: '/informes' };
+  const reports = { label: t('nav.reports'), to: '/reports' };
   const groups = [
     {
       label: t('nav.theCode'),
@@ -52,7 +52,7 @@ const Header = () => {
 
   const handleNavClick = (item) => {
     setIsOpen(false);
-    // Route links (e.g. /informes) navigate directly.
+    // Route links (e.g. /reports) navigate directly.
     if (typeof item === 'object' && item.to) {
       navigate(item.to);
       return;
@@ -114,7 +114,7 @@ const Header = () => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="bg-card border-border">
           <DropdownMenuItem
-            onClick={() => navigate('/mi-codigo')}
+            onClick={() => navigate('/dashboard')}
             className="cursor-pointer text-muted-foreground focus:text-primary focus:bg-muted"
           >
             <Sparkles className="w-4 h-4 mr-2" /> {t('nav.myCode')}
@@ -287,8 +287,8 @@ const Header = () => {
                             {user.name || user.email}
                           </span>
                           <a
-                            href="/mi-codigo"
-                            onClick={(e) => { e.preventDefault(); setIsOpen(false); navigate('/mi-codigo'); }}
+                            href="/dashboard"
+                            onClick={(e) => { e.preventDefault(); setIsOpen(false); navigate('/dashboard'); }}
                             className="px-4 py-3 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-lg transition-all duration-200 inline-flex items-center"
                           >
                             <Sparkles className="w-4 h-4 mr-2" /> {t('nav.myCode')}

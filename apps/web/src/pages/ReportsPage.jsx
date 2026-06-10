@@ -7,7 +7,7 @@ import { useI18n } from '@/i18n/I18nProvider.jsx';
 import { RELATIONAL_PRODUCTS } from '@/config/payments.js';
 import { relationContent } from '@/content/relations.js';
 
-const RELATION_ICONS = { pareja: Heart, grupal: Users };
+const RELATION_ICONS = { couple: Heart, group: Users };
 
 const Card = ({ icon: Icon, title, tagline, freeLabel, to, cta }) => (
   <Link to={to}
@@ -61,7 +61,7 @@ const ReportsPage = () => {
                 title={meta.label}
                 tagline={meta.tagline}
                 freeLabel={t('common.free')}
-                to={`/conjunto/${type}`}
+                to={`/relation/${type}`}
                 cta={t('reports.startCta')}
               />
             );

@@ -29,7 +29,7 @@ const ORBIT_OFFSETS = [
   { x: 96, y: 118, opacity: 0.86, dur: 58 },
 ];
 
-export default function Mandala({ number, sub }) {
+export default function Mandala({ number, sub, label = 'Número Solar' }) {
   const display = useCountUp(number);
   return (
     <div className="db-mandala">
@@ -56,7 +56,7 @@ export default function Mandala({ number, sub }) {
         </div>
       ))}
       <div className="db-num-wrap">
-        <div className="db-num-lab">Número Solar</div>
+        <div className="db-num-lab">{label}</div>
         <div className="db-solar-number">{fmtSolar(display)}</div>
         {sub && <div className="db-num-sub">{sub}</div>}
       </div>

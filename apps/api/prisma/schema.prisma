@@ -20,10 +20,14 @@ model User {
   birthdate    String?
   country      String?
   memberNumber         Int       @default(autoincrement())
-  fullReportPurchased  Boolean   @default(false)
+  fullReportPurchased    Boolean   @default(false)
+  coupleReportPurchased  Boolean   @default(false)
+  groupReportPurchased   Boolean   @default(false)
+  tennisCredits          Int       @default(0)
   createdAt            DateTime  @default(now())
   readings             Reading[]
   sessions             Session[]
+  passwordResets       PasswordReset[]
 }
 
 // A login session = one refresh-token "family". The row's id is the familyId
@@ -51,6 +55,19 @@ model Lead {
   birthdate String?
   message   String?
   createdAt DateTime @default(now())
+}
+
+// Token para recuperación de contraseña. Expira en 1h y se invalida al usarse.
+model PasswordReset {
+  id        String    @id @default(uuid())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([token])
 }
 
 // One saved Solar Code consultation, so it shows up in the user's history.
