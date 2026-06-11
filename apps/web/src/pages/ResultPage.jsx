@@ -141,7 +141,7 @@ const ResultPage = () => {
     window.localStorage.setItem(REPORT_STORAGE_KEY, JSON.stringify(result.input));
     if (!user) {
       pendingUnlock.current = true;
-      openAuth('email', null);
+      openAuth('email', null, { name, country: params.get('country') || '' });
       return;
     }
     if (PAYMENT_LINKS.fullReport) {
