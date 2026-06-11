@@ -258,15 +258,25 @@ function DetailOverlay({ item, onClose, setSection, s, sb }) {
               {s.compatReportBtn}
             </button>
           ) : (
-            <div className="db-card" style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', marginTop: 4 }}>
-              <div>
-                <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 28, fontWeight: 700, color: 'var(--db-gold-2)', lineHeight: 1 }}>
-                  {RELATIONAL_PRODUCTS.couple.price.display}
+            <div className="db-card" style={{ padding: '20px 22px', marginTop: 4 }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 14 }}>
+                <div>
+                  <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 28, fontWeight: 700, color: 'var(--db-gold-2)', lineHeight: 1 }}>
+                    {RELATIONAL_PRODUCTS.couple.price.display}
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--db-muted-2)', marginTop: 2 }}>pago único · acceso de por vida</div>
                 </div>
-                <div style={{ fontSize: 11, color: 'var(--db-muted-2)' }}>pago único · acceso de por vida</div>
               </div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {['Análisis de resonancia profundo', 'Mapa de elementos compartidos', 'Áreas de armonía y de aprendizaje', 'Ritual de vínculo para ambos'].map(perk => (
+                  <li key={perk} style={{ fontSize: 13, color: 'var(--db-muted-1)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ color: 'var(--db-gold-2)', fontSize: 10 }}>✦</span> {perk}
+                  </li>
+                ))}
+              </ul>
               <button
                 className="db-btn db-btn-gold"
+                style={{ width: '100%' }}
                 onClick={() => {
                   const link = RELATIONAL_PRODUCTS.couple.link;
                   const url = user?.id ? `${link}?client_reference_id=${user.id}` : link;
