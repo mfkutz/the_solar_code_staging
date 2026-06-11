@@ -8,6 +8,7 @@ import { enrichCode, computeResonance, computeAdvantage } from '@/lib/dashboardD
 import { computeSolarCode } from '@/lib/solarcode/index.js';
 import { api } from '@/lib/api.js';
 import { useAuth } from '@/auth/AuthProvider.jsx';
+import { RELATIONAL_PRODUCTS } from '@/config/payments.js';
 
 const TENNIS_FREE_LIMIT = 1;
 
@@ -70,6 +71,7 @@ function isValid(p) {
 export default function CompatibilidadSection() {
   const { userCode, dailyCode, addHistory, openPayment, toast, tennisUsed, incTennisUsed, lang } = useContext(DashCtx);
   const { user, updateUser } = useAuth();
+  const hasCompatReport = user?.coupleReportPurchased === true;
   const { t } = useI18n();
   const s  = t('dashboard.compat');
   const sb = t('dashboard.sidebar');
@@ -278,14 +280,34 @@ export default function CompatibilidadSection() {
             <p className="db-rtext" style={{ marginTop: 22 }}>{result.res.text}</p>
           </div>
           <div className="db-row" style={{ gap: 12, flexWrap: 'wrap' }}>
-            <button
-              className="db-btn db-btn-gold"
-              onClick={() => openPayment({ type: 'compat', glyph: result.other.seal.glyph, desc: s.compatReportDesc(result.other.name.split(' ')[0]) })}
-            >
-              <span className="db-shine" />
-              {s.compatReportBtn}
-              <DashboardIcon name="arrow" style={{ width: 16, height: 16 }} />
-            </button>
+            {hasCompatReport ? (
+              <button className="db-btn db-btn-gold" onClick={() => {}}>
+                <span className="db-shine" />
+                <DashboardIcon name="eye" style={{ width: 16, height: 16 }} />
+                {s.compatReportBtn}
+              </button>
+            ) : (
+              <div className="db-card" style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+                <div>
+                  <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 28, fontWeight: 700, color: 'var(--db-gold-2)', lineHeight: 1 }}>
+                    {RELATIONAL_PRODUCTS.couple.price.display}
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--db-muted-2)' }}>pago único · acceso de por vida</div>
+                </div>
+                <button
+                  className="db-btn db-btn-gold"
+                  onClick={() => {
+                    const link = RELATIONAL_PRODUCTS.couple.link;
+                    const url = user?.id ? `${link}?client_reference_id=${user.id}` : link;
+                    window.location.href = url;
+                  }}
+                >
+                  <span className="db-shine" />
+                  <DashboardIcon name="lock" style={{ width: 16, height: 16 }} />
+                  {s.compatReportBtn}
+                </button>
+              </div>
+            )}
             <button className="db-btn db-btn-ghost" onClick={reset}>
               <DashboardIcon name="plus" style={{ width: 16, height: 16 }} />
               {s.newQueryBtn}
