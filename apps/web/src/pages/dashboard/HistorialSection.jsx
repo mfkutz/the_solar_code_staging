@@ -169,11 +169,13 @@ function DetailOverlayCoupleGroup({ item, onClose, s }) {
   );
 }
 
-function DetailOverlay({ item, onClose, openPayment, setSection, s, sb }) {
+function DetailOverlay({ item, onClose, setSection, s, sb }) {
   if (!item) return null;
+  const { user } = useAuth();
   const c = item.code;
   const r = item.resonance;
   const isPersonal = item.kind === 'personal';
+  const hasCompatReport = user?.coupleReportPurchased === true;
 
   return createPortal(<div className="db-overlay" onClick={onClose} style={{ overflowY: 'auto', alignItems: 'flex-start' }}>
       <div className="db-modal" onClick={(e) => e.stopPropagation()} style={{ width: 'min(540px,100%)', margin: '24px auto' }}>
@@ -248,16 +250,36 @@ function DetailOverlay({ item, onClose, openPayment, setSection, s, sb }) {
           </div>
         )}
 
-        {openPayment && !isPersonal && (
-          <button
-            className="db-btn db-btn-gold"
-            style={{ width: '100%' }}
-            onClick={() => { onClose(); openPayment({ type: 'compat', glyph: c.seal.glyph, desc: s.compatReportDesc(c.name.split(' ')[0]) }); }}
-          >
-            <span className="db-shine" />
-            {s.compatReportBtn}
-            <DashboardIcon name="arrow" style={{ width: 16, height: 16 }} />
-          </button>
+        {!isPersonal && (
+          hasCompatReport ? (
+            <button className="db-btn db-btn-gold" style={{ width: '100%' }}>
+              <span className="db-shine" />
+              <DashboardIcon name="eye" style={{ width: 16, height: 16 }} />
+              {s.compatReportBtn}
+            </button>
+          ) : (
+            <div className="db-card" style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', marginTop: 4 }}>
+              <div>
+                <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 28, fontWeight: 700, color: 'var(--db-gold-2)', lineHeight: 1 }}>
+                  {RELATIONAL_PRODUCTS.couple.price.display}
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--db-muted-2)' }}>pago único · acceso de por vida</div>
+              </div>
+              <button
+                className="db-btn db-btn-gold"
+                onClick={() => {
+                  const link = RELATIONAL_PRODUCTS.couple.link;
+                  const url = user?.id ? `${link}?client_reference_id=${user.id}` : link;
+                  onClose();
+                  window.location.href = url;
+                }}
+              >
+                <span className="db-shine" />
+                <DashboardIcon name="lock" style={{ width: 16, height: 16 }} />
+                {s.compatReportBtn}
+              </button>
+            </div>
+          )
         )}
       </div>
     </div>, document.querySelector('.dashboard-shell') || document.body);
@@ -375,7 +397,6 @@ export default function HistorialSection() {
         <DetailOverlay
           item={detail}
           onClose={() => setDetail(null)}
-          openPayment={openPayment}
           setSection={setSection}
           s={s}
           sb={sb}
