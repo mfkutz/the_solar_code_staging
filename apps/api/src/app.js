@@ -25,6 +25,10 @@ export function createApp() {
   const app = express();
   const isProd = process.env.NODE_ENV === 'production';
 
+  // Railway (and most cloud platforms) sit behind a reverse proxy.
+  // Trust the first hop so express-rate-limit reads the real client IP.
+  app.set('trust proxy', 1);
+
   // --- CORS -----------------------------------------------------------------
   const origins = (process.env.CORS_ORIGIN || '')
     .split(',')
