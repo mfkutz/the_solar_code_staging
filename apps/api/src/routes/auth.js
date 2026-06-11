@@ -58,6 +58,13 @@ function clearAuthCookies(res) {
   res.clearCookie(REFRESH_COOKIE, refresh);
 }
 
+router.get('/check-email', async (req, res) => {
+  const email = (req.query.email || '').trim().toLowerCase();
+  if (!email) return res.status(400).json({ error: 'Email requerido' });
+  const user = await prisma.user.findUnique({ where: { email }, select: { id: true } });
+  res.json({ exists: !!user });
+});
+
 router.post('/register', async (req, res) => {
   const parsed = credentials.safeParse(req.body);
   if (!parsed.success) {

@@ -9,48 +9,59 @@ import { useI18n } from '@/i18n/I18nProvider.jsx';
 import { useAuth } from '@/auth/AuthProvider.jsx';
 import { api } from '@/lib/api.js';
 
-// Single dialog with a login/register toggle. Controlled by AuthProvider so it
-// can be opened from the header or the "save your reading" prompt.
 export default function AuthDialog() {
   const { t } = useI18n();
   const navigate = useNavigate();
   const { authOpen, authMode, authRedirect, closeAuth, login, register } = useAuth();
 
-  const [mode, setMode] = useState(authMode); // 'login' | 'register' | 'forgot' | 'forgot-sent'
+  // 'email' → 'login' | 'register' | 'forgot' | 'forgot-sent'
+  const [mode, setMode] = useState('email');
   const [name, setName] = useState('');
   const [country, setCountry] = useState('');
   const [email, setEmail] = useState('');
+  const [emailLocked, setEmailLocked] = useState(false);
+  const [newAccount, setNewAccount] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // Reset to the requested mode and clear fields each time the dialog opens.
+  // Reset each time the dialog opens.
   useEffect(() => {
     if (authOpen) {
-      setMode(authMode);
+      setMode(authMode === 'forgot' ? 'forgot' : 'email');
       setName('');
       setCountry('');
       setEmail('');
+      setEmailLocked(false);
+      setNewAccount(false);
       setPassword('');
       setError('');
       setSubmitting(false);
     }
   }, [authOpen, authMode]);
 
-  const isLogin = mode === 'login';
-
   const onSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSubmitting(true);
     try {
+      if (mode === 'email') {
+        const { exists } = await api.get(`/auth/check-email?email=${encodeURIComponent(email.trim())}`);
+        setEmailLocked(true);
+        setNewAccount(!exists);
+        setMode(exists ? 'login' : 'register');
+        return;
+      }
       if (mode === 'forgot') {
         await api.post('/auth/forgot-password', { email });
         setMode('forgot-sent');
         return;
       }
-      if (isLogin) await login(email, password);
-      else await register({ email, password, name: name.trim() || undefined, country: country.trim() || undefined });
+      if (mode === 'login') {
+        await login(email, password);
+      } else {
+        await register({ email, password, name: name.trim() || undefined, country: country.trim() || undefined });
+      }
       closeAuth();
       if (authRedirect) navigate(authRedirect);
     } catch (err) {
@@ -60,20 +71,30 @@ export default function AuthDialog() {
     }
   };
 
+  const resetToEmail = () => {
+    setEmailLocked(false);
+    setNewAccount(false);
+    setPassword('');
+    setError('');
+    setMode('email');
+  };
+
+  const a = t('auth');
+
   if (mode === 'forgot-sent') {
     return (
       <Dialog open={authOpen} onOpenChange={(open) => { if (!open) closeAuth(); }}>
         <DialogContent className="w-[calc(100%-2rem)] sm:max-w-md rounded-xl bg-card border-border">
           <DialogHeader>
             <DialogTitle className="text-primary" style={{ fontFamily: 'Playfair Display, serif' }}>
-              {t('auth.forgotSentTitle')}
+              {a.forgotSentTitle}
             </DialogTitle>
-            <DialogDescription>{t('auth.forgotSentDesc')}</DialogDescription>
+            <DialogDescription>{a.forgotSentDesc}</DialogDescription>
           </DialogHeader>
           <p className="text-sm text-muted-foreground text-center mt-4">
             <button type="button" onClick={() => { setMode('login'); setError(''); }}
               className="text-primary font-medium hover:underline">
-              {t('auth.backToLogin')}
+              {a.backToLogin}
             </button>
           </p>
         </DialogContent>
@@ -81,59 +102,84 @@ export default function AuthDialog() {
     );
   }
 
+  const title = mode === 'email'    ? a.emailStepTitle
+              : mode === 'forgot'   ? a.forgotTitle
+              : mode === 'login'    ? a.loginTitle
+              :                       a.registerTitle;
+
+  const subtitle = mode === 'email'  ? a.emailStepSubtitle
+                 : mode === 'forgot' ? a.forgotDesc
+                 : mode === 'login'  ? a.loginSubtitle
+                 :                    a.registerSubtitle;
+
   return (
     <Dialog open={authOpen} onOpenChange={(open) => { if (!open) closeAuth(); }}>
       <DialogContent className="w-[calc(100%-2rem)] sm:max-w-md rounded-xl bg-card border-border">
         <DialogHeader>
           <DialogTitle className="text-primary" style={{ fontFamily: 'Playfair Display, serif' }}>
-            {mode === 'forgot' ? t('auth.forgotTitle') : isLogin ? t('auth.loginTitle') : t('auth.registerTitle')}
+            {title}
           </DialogTitle>
-          <DialogDescription>
-            {mode === 'forgot' ? t('auth.forgotDesc') : isLogin ? t('auth.loginSubtitle') : t('auth.registerSubtitle')}
-          </DialogDescription>
+          <DialogDescription>{subtitle}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={onSubmit} className="flex flex-col gap-4 mt-2">
-          {mode !== 'forgot' && !isLogin && (
+
+          {/* Name + country — only on register */}
+          {mode === 'register' && (
             <>
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="auth-name">{t('auth.name')}</Label>
+                <Label htmlFor="auth-name">{a.name}</Label>
                 <Input
                   id="auth-name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder={t('auth.namePh')}
+                  placeholder={a.namePh}
                   autoComplete="name"
+                  autoFocus
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <Label>{t('auth.country')}</Label>
+                <Label>{a.country}</Label>
                 <CountrySelect value={country} onChange={setCountry} />
               </div>
             </>
           )}
 
+          {/* Email field — editable in 'email' and 'forgot', locked chip otherwise */}
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="auth-email">{t('auth.email')}</Label>
-            <Input
-              id="auth-email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={t('auth.emailPh')}
-              autoComplete="email"
-            />
+            <Label htmlFor="auth-email">{a.email}</Label>
+            {emailLocked ? (
+              <div className="flex items-center justify-between rounded-md border border-input bg-muted px-3 py-2 text-sm">
+                <span className="text-foreground">{email}</span>
+                <button type="button" onClick={resetToEmail}
+                  className="text-xs text-primary hover:underline ml-2 shrink-0">
+                  {a.changeEmail}
+                </button>
+              </div>
+            ) : (
+              <Input
+                id="auth-email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={a.emailPh}
+                autoComplete="email"
+                autoFocus={mode === 'email'}
+              />
+            )}
           </div>
 
-          {mode !== 'forgot' && (
+          {/* Password — login, register, forgot */}
+          {(mode === 'login' || mode === 'register') && (
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
-                <Label htmlFor="auth-password">{t('auth.password')}</Label>
-                {isLogin && (
-                  <button type="button" tabIndex={-1} onClick={() => { setMode('forgot'); setError(''); }}
+                <Label htmlFor="auth-password">{a.password}</Label>
+                {mode === 'login' && (
+                  <button type="button" tabIndex={-1}
+                    onClick={() => { setMode('forgot'); setEmailLocked(false); setError(''); }}
                     className="text-xs text-muted-foreground hover:text-primary hover:underline">
-                    {t('auth.forgotLink')}
+                    {a.forgotLink}
                   </button>
                 )}
               </div>
@@ -144,40 +190,65 @@ export default function AuthDialog() {
                 minLength={8}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder={t('auth.passwordPh')}
-                autoComplete={isLogin ? 'current-password' : 'new-password'}
+                placeholder={a.passwordPh}
+                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                autoFocus={mode === 'login'}
               />
             </div>
+          )}
+
+          {mode === 'forgot' && (
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="auth-email-forgot">{a.email}</Label>
+              <Input
+                id="auth-email-forgot"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={a.emailPh}
+                autoComplete="email"
+              />
+            </div>
+          )}
+
+          {/* "No account found" note */}
+          {mode === 'register' && newAccount && (
+            <p className="text-xs text-muted-foreground -mt-1">{a.newAccountNote}</p>
           )}
 
           {error && <p className="text-sm text-destructive">{error}</p>}
 
           <Button type="submit" disabled={submitting} className="bg-primary text-primary-foreground hover:bg-primary/90">
             {submitting
-              ? '...'
-              : mode === 'forgot'
-                ? t('auth.forgotSubmit')
-                : isLogin ? t('auth.submitLogin') : t('auth.submitRegister')}
+              ? (mode === 'email' ? a.checking : '…')
+              : mode === 'email'    ? a.emailContinue
+              : mode === 'forgot'   ? a.forgotSubmit
+              : mode === 'login'    ? a.submitLogin
+              :                       a.submitRegister}
           </Button>
         </form>
 
-        <p className="text-sm text-muted-foreground text-center mt-2">
-          {mode === 'forgot' ? (
-            <button type="button" onClick={() => { setMode('login'); setError(''); }}
+        {/* Footer links */}
+        {(mode === 'login' || mode === 'register') && (
+          <p className="text-sm text-muted-foreground text-center mt-2">
+            {mode === 'login' ? a.noAccount : a.haveAccount}{' '}
+            <button type="button"
+              onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setNewAccount(false); setError(''); }}
               className="text-primary font-medium hover:underline">
-              {t('auth.backToLogin')}
+              {mode === 'login' ? a.switchToRegister : a.switchToLogin}
             </button>
-          ) : (
-            <>
-              {isLogin ? t('auth.noAccount') : t('auth.haveAccount')}{' '}
-              <button type="button"
-                onClick={() => { setMode(isLogin ? 'register' : 'login'); setError(''); }}
-                className="text-primary font-medium hover:underline">
-                {isLogin ? t('auth.switchToRegister') : t('auth.switchToLogin')}
-              </button>
-            </>
-          )}
-        </p>
+          </p>
+        )}
+
+        {mode === 'forgot' && (
+          <p className="text-sm text-muted-foreground text-center mt-2">
+            <button type="button" onClick={() => { setMode('email'); setError(''); }}
+              className="text-primary font-medium hover:underline">
+              {a.backToLogin}
+            </button>
+          </p>
+        )}
       </DialogContent>
     </Dialog>
   );

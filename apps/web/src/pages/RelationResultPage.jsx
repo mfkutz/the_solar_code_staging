@@ -83,6 +83,7 @@ const RelationResultPage = () => {
           <RitualReveal
             variant={type === 'couple' ? 'couple' : 'group'}
             onDone={() => setRevealing(false)}
+            duration={4500}
           />
         )}
       </AnimatePresence>

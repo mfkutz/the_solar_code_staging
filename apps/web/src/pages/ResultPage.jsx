@@ -33,7 +33,7 @@ const ResultPage = () => {
   const birthdate = params.get('birthdate');
   const name = params.get('name') || '';
   const [revealing, setRevealing] = useState(() => params.get('saved') !== '1');
-  const { user, openAuth } = useAuth();
+  const { user, openAuth, updateUser } = useAuth();
   const [saved, setSaved] = useState(() => params.get('saved') === '1');
   const [saving, setSaving] = useState(false);
   const pendingSave = useRef(false);
@@ -73,6 +73,13 @@ const ResultPage = () => {
     if (!user) return;
     if (pendingSave.current) {
       pendingSave.current = false;
+      // If user registered here and has no birthdate yet, save it to their profile
+      // so the dashboard doesn't ask for it again.
+      if (birthdate && !user.birthdate) {
+        api.patch('/auth/profile', { birthdate })
+          .then(() => updateUser({ birthdate }))
+          .catch(() => {});
+      }
       saveReading();
     }
     if (pendingUnlock.current) {
@@ -159,7 +166,7 @@ const ResultPage = () => {
   return (
     <>
       <AnimatePresence>
-        {revealing && <RitualReveal onDone={() => setRevealing(false)} />}
+        {revealing && <RitualReveal onDone={() => setRevealing(false)} duration={4500} />}
       </AnimatePresence>
 
       <div className="min-h-screen pt-28 pb-24">
