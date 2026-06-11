@@ -66,13 +66,13 @@ function SealChip({ code, lang }) {
         {code.seal?.glyph || '✦'}
       </div>
       <div>
-        <div style={{ fontWeight: 600, fontSize: 14 }}>{code.input?.name || '—'}</div>
+        <div style={{ fontWeight: 600, fontSize: 14 }}>{code.name || '—'}</div>
         <div style={{ fontSize: 12, color: 'var(--db-muted-2)' }}>
           {code.seal?.name} · {code.tone?.name}
         </div>
         <div style={{ display: 'inline-block', marginTop: 4, fontSize: 11, padding: '2px 8px', borderRadius: 99,
           background: elementColor(code.element) + '22', color: elementColor(code.element), border: `1px solid ${elementColor(code.element)}55` }}>
-          {code.element}
+          {code.elementDisplay?.label || code.element}
         </div>
       </div>
       <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
@@ -365,8 +365,14 @@ export default function ConjuntosSection() {
             <div style={{ fontFamily: "'Cormorant Garamond',serif", color: 'var(--db-gold-2)', fontSize: 15, marginBottom: 14 }}>
               {s.combinedEnergy}
             </div>
-            <EnergyRow label={`Sello ${result.group.strongestPair?.i+1 ?? ''} + Sello ${result.group.strongestPair?.j+1 ?? ''}`}
-              seal={result.people[0]?.seal ? { glyph: '⊛', name: 'Campo compartido', powers: [`${result.group.resonance}% resonancia`] } : null} />
+            <EnergyRow
+              label={(() => {
+                const sp = result.group.strongestPair;
+                const pA = sp != null ? result.people[sp.i] : result.people[0];
+                const pB = sp != null ? result.people[sp.j] : result.people[1];
+                return pA && pB ? `${pA.name} ✦ ${pB.name}` : s.combinedEnergy;
+              })()}
+              seal={result.people[0]?.seal ? { glyph: '⊛', name: s.sharedField || 'Campo compartido', powers: [`${result.group.resonance}% ${s.resonanceLabel || 'resonancia'}`] } : null} />
           </div>
 
           {/* Full report — locked or unlocked */}
