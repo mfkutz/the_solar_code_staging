@@ -182,7 +182,7 @@ function HistoryItem({ item, onSelect, s }) {
       </div>
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: 13, fontWeight: 600 }}>
-          {item.people.slice(0,2).map(p => p.input?.name || '—').join(' ✦ ')}
+          {item.people.slice(0,2).map(p => p.name || '—').join(' ✦ ')}
           {item.people.length > 2 ? ` +${item.people.length-2}` : ''}
         </div>
         <div style={{ fontSize: 11, color: 'var(--db-muted-2)' }}>
