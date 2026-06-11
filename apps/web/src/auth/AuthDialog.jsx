@@ -12,7 +12,7 @@ import { api } from '@/lib/api.js';
 export default function AuthDialog() {
   const { t } = useI18n();
   const navigate = useNavigate();
-  const { authOpen, authMode, authRedirect, closeAuth, login, register } = useAuth();
+  const { authOpen, authMode, authRedirect, authHint, closeAuth, login, register } = useAuth();
 
   // 'email' → 'login' | 'register' | 'forgot' | 'forgot-sent'
   const [mode, setMode] = useState('email');
@@ -49,6 +49,7 @@ export default function AuthDialog() {
         const { exists } = await api.get(`/auth/check-email?email=${encodeURIComponent(email.trim())}`);
         setEmailLocked(true);
         setNewAccount(!exists);
+        if (!exists && authHint?.name) setName(authHint.name);
         setMode(exists ? 'login' : 'register');
         return;
       }

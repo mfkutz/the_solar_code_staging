@@ -14,9 +14,11 @@ export function AuthProvider({ children }) {
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState('login');
   const [authRedirect, setAuthRedirect] = useState('/dashboard');
-  const openAuth = useCallback((mode = 'login', redirectTo = '/dashboard') => {
+  const [authHint, setAuthHint] = useState({});
+  const openAuth = useCallback((mode = 'login', redirectTo = '/dashboard', hint = {}) => {
     setAuthMode(mode);
     setAuthRedirect(redirectTo);
+    setAuthHint(hint);
     setAuthOpen(true);
   }, []);
   const closeAuth = useCallback(() => setAuthOpen(false), []);
@@ -51,7 +53,7 @@ export function AuthProvider({ children }) {
 
   const value = {
     user, loading, login, register, logout, updateUser,
-    authOpen, authMode, authRedirect, openAuth, closeAuth,
+    authOpen, authMode, authRedirect, authHint, openAuth, closeAuth,
   };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

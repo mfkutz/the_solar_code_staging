@@ -97,7 +97,7 @@ const ResultPage = () => {
     if (saved) return;
     if (!user) {
       pendingSave.current = true;
-      openAuth('login', null);
+      openAuth('login', null, { name });
       return;
     }
     saveReading();
