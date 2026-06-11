@@ -84,6 +84,11 @@ const ResultPage = () => {
     }
     if (pendingUnlock.current) {
       pendingUnlock.current = false;
+      if (birthdate && !user.birthdate) {
+        api.patch('/auth/profile', { birthdate })
+          .then(() => updateUser({ birthdate }))
+          .catch(() => {});
+      }
       const link = PAYMENT_LINKS.fullReport;
       if (link) {
         window.location.href = `${link}?client_reference_id=${user.id}`;
