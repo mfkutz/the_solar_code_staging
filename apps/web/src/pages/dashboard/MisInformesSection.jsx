@@ -1,16 +1,22 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashCtx } from './DashCtx.js';
 import { useI18n } from '@/i18n/I18nProvider.jsx';
 import DashboardIcon from '@/components/dashboard/DashboardIcon.jsx';
 import { useAuth } from '@/auth/AuthProvider.jsx';
+import { RelationReportOverlay } from '@/components/dashboard/RelationReport.jsx';
 
 export default function MisInformesSection() {
-  const { userCode, openPayment, setSection } = useContext(DashCtx);
+  const { userCode, openPayment, setSection, history, lang } = useContext(DashCtx);
   const { user } = useAuth();
   const { t } = useI18n();
   const s  = t('dashboard.informes');
+  const sc = t('dashboard.conjuntos');
   const sb = t('dashboard.sidebar');
+  const [reportItem, setReportItem] = useState(null);
+
+  const lastCouple = history?.find(h => h.kind === 'couple');
+  const lastGroup  = history?.find(h => h.kind === 'group');
   const navigate = useNavigate();
 
   const hasSolarReport  = user?.fullReportPurchased   === true;
@@ -78,13 +84,26 @@ export default function MisInformesSection() {
             <div className="db-report-card">
               <div className="db-rc-seal">♾</div>
               <div className="db-rc-type">{s.coupleType}</div>
-              <div className="db-rc-title">{s.coupleReportTitle}</div>
+              <div className="db-rc-title">
+                {s.coupleReportTitle}
+                {lastCouple && (
+                  <span style={{ display: 'block', fontSize: 13, fontWeight: 400, color: 'var(--db-muted)', marginTop: 4 }}>
+                    {lastCouple.people.slice(0,2).map(p => p.name).join(' ✦ ')}
+                  </span>
+                )}
+              </div>
               <div style={{ marginTop: 18 }}>
-                <button className="db-btn db-btn-gold" onClick={() => setSection('conjuntos')}>
-                  <span className="db-shine" />
-                  <DashboardIcon name="eye" style={{ width: 16, height: 16 }} />
-                  {s.viewBtn}
-                </button>
+                {lastCouple ? (
+                  <button className="db-btn db-btn-gold" onClick={() => setReportItem(lastCouple)}>
+                    <span className="db-shine" />
+                    <DashboardIcon name="eye" style={{ width: 16, height: 16 }} />
+                    {s.viewBtn}
+                  </button>
+                ) : (
+                  <button className="db-btn db-btn-ghost" onClick={() => setSection('conjuntos')}>
+                    {s.newReadingBtn || 'Nueva lectura'}
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -93,17 +112,39 @@ export default function MisInformesSection() {
             <div className="db-report-card">
               <div className="db-rc-seal">✦</div>
               <div className="db-rc-type">{s.groupType}</div>
-              <div className="db-rc-title">{s.groupReportTitle}</div>
+              <div className="db-rc-title">
+                {s.groupReportTitle}
+                {lastGroup && (
+                  <span style={{ display: 'block', fontSize: 13, fontWeight: 400, color: 'var(--db-muted)', marginTop: 4 }}>
+                    {lastGroup.people.slice(0,2).map(p => p.name).join(' ✦ ')}
+                    {lastGroup.people.length > 2 ? ` +${lastGroup.people.length - 2}` : ''}
+                  </span>
+                )}
+              </div>
               <div style={{ marginTop: 18 }}>
-                <button className="db-btn db-btn-gold" onClick={() => setSection('conjuntos')}>
-                  <span className="db-shine" />
-                  <DashboardIcon name="eye" style={{ width: 16, height: 16 }} />
-                  {s.viewBtn}
-                </button>
+                {lastGroup ? (
+                  <button className="db-btn db-btn-gold" onClick={() => setReportItem(lastGroup)}>
+                    <span className="db-shine" />
+                    <DashboardIcon name="eye" style={{ width: 16, height: 16 }} />
+                    {s.viewBtn}
+                  </button>
+                ) : (
+                  <button className="db-btn db-btn-ghost" onClick={() => setSection('conjuntos')}>
+                    {s.newReadingBtn || 'Nueva lectura'}
+                  </button>
+                )}
               </div>
             </div>
           )}
         </div>
+      )}
+      {reportItem && (
+        <RelationReportOverlay
+          item={reportItem}
+          onClose={() => setReportItem(null)}
+          s={sc}
+          lang={lang}
+        />
       )}
     </div>
   );

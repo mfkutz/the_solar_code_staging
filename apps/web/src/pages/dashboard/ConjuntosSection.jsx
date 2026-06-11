@@ -8,6 +8,7 @@ import { computeRelation } from '@/lib/solarcode/relations.js';
 import { PAYMENT_LINKS, relationPricing } from '@/config/payments.js';
 import { api } from '@/lib/api.js';
 import { relationContent } from '@/content/relations.js';
+import { RelationReportContent } from '@/components/dashboard/RelationReport.jsx';
 
 const COUPLE_MIN = 2;
 const GROUP_MIN  = 3;
@@ -105,67 +106,7 @@ function EnergyRow({ label, seal }) {
 }
 
 function FullReport({ result, lang, s }) {
-  const rc = relationContent[lang] || relationContent.es;
-  const fill = (tpl, vars) => tpl?.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '') ?? '';
-  const ELEMENT_DISPLAY = { fire: 'Fuego', water: 'Agua', earth: 'Tierra', air: 'Aire', ether: 'Éter' };
-
-  return (
-    <div className="db-stack" style={{ gap: 16, marginTop: 8 }}>
-      {/* Bonds */}
-      <div className="db-card" style={{ padding: '20px 22px' }}>
-        <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 18, color: 'var(--db-gold-2)', marginBottom: 14 }}>
-          {s.bondsSectionTitle}
-        </div>
-        {result.pairs.map((pair, i) => (
-          <div key={i} style={{ padding: '10px 0', borderBottom: '1px solid var(--db-border)', fontSize: 13, lineHeight: 1.6 }}>
-            <div style={{ fontWeight: 600, color: 'var(--db-gold)', marginBottom: 4 }}>
-              {pair.nameA || `P${pair.i+1}`} ✦ {pair.nameB || `P${pair.j+1}`}
-            </div>
-            <div style={{ color: 'var(--db-muted-1)' }}>
-              {fill(rc.category?.[pair.category] || '', {
-                nameA: pair.nameA, nameB: pair.nameB,
-                elementA: ELEMENT_DISPLAY[pair.elementA] || pair.elementA,
-                elementB: ELEMENT_DISPLAY[pair.elementB] || pair.elementB,
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Group field */}
-      <div className="db-card" style={{ padding: '20px 22px' }}>
-        <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 18, color: 'var(--db-gold-2)', marginBottom: 14 }}>
-          {s.groupFieldTitle}
-        </div>
-        <div style={{ fontSize: 13, color: 'var(--db-muted-1)', lineHeight: 1.7 }}>
-          {fill(rc.groupIntro || '', { size: result.group.size })}
-        </div>
-        {result.group.dominantElement && (
-          <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 10, height: 10, borderRadius: '50%', background: elementColor(result.group.dominantElement) }} />
-            <span style={{ fontSize: 12, color: 'var(--db-muted-2)' }}>{s.dominantElement}: </span>
-            <span style={{ fontSize: 13, fontWeight: 600 }}>{ELEMENT_DISPLAY[result.group.dominantElement] || result.group.dominantElement}</span>
-          </div>
-        )}
-      </div>
-
-      {/* Synthesis */}
-      <div className="db-card" style={{ padding: '20px 22px' }}>
-        <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 18, color: 'var(--db-gold-2)', marginBottom: 10 }}>
-          {s.synthesis}
-        </div>
-        <div style={{ fontSize: 13, color: 'var(--db-muted-1)', lineHeight: 1.8, fontStyle: 'italic' }}>
-          {result.group.resonance >= 82 ? rc.synthesis?.high : rc.synthesis?.balanced}
-        </div>
-      </div>
-
-      {/* Print */}
-      <button className="db-btn db-btn-ghost" style={{ width: '100%' }} onClick={() => window.print()}>
-        <DashboardIcon name="scroll" style={{ width: 16, height: 16 }} />
-        {s.printBtn}
-      </button>
-    </div>
-  );
+  return <RelationReportContent result={result} lang={lang} s={s} />;
 }
 
 function HistoryItem({ item, onSelect, s }) {
