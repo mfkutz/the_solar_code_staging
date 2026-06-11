@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Sun, Download, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nProvider.jsx';
+import { useAuth } from '@/auth/AuthProvider.jsx';
 import { computeSolarCode } from '@/lib/solarcode';
 import { REPORT_STORAGE_KEY } from '@/config/payments.js';
 import { seals } from '@/content/seals.js';
@@ -32,7 +33,15 @@ const Section = ({ title, children }) => (
 
 const ReportPage = () => {
   const { t, lang } = useI18n();
-  const input = useMemo(readStoredInput, []);
+  const { user } = useAuth();
+
+  const input = useMemo(() => {
+    const stored = readStoredInput();
+    if (stored?.birthdate) return stored;
+    // Fallback: use profile birthdate (e.g. different device or cleared cache)
+    if (user?.birthdate) return { birthdate: user.birthdate, name: user.name || '' };
+    return null;
+  }, [user?.birthdate, user?.name]);
 
   const result = useMemo(() => {
     if (!input?.birthdate) return null;
