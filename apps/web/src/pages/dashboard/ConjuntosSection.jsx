@@ -197,7 +197,7 @@ function HistoryItem({ item, onSelect, s }) {
 }
 
 export default function ConjuntosSection() {
-  const { openPayment, toast } = useContext(DashCtx);
+  const { openPayment, toast, addHistory } = useContext(DashCtx);
   const { user, updateUser } = useAuth();
   const { t, lang } = useI18n();
   const s  = t('dashboard.conjuntos');
@@ -259,10 +259,11 @@ export default function ConjuntosSection() {
           createdAt: Date.now(),
         };
         setHistory(h => [newItem, ...h]);
+        addHistory(newItem);
 
         api.post('/readings', {
           input:  { kind: mode, people: inputs },
-          result: { people: enriched.map(p => ({ seal: p.seal, tone: p.tone, element: p.element, sealNum: p.sealNum, input: p.input })), group: relation.group, pairs: relation.pairs },
+          result: { people: relation.people, group: relation.group, pairs: relation.pairs },
         }).catch(() => {});
 
         toast(s.reportSaved, 'check');
