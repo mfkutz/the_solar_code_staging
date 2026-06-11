@@ -89,6 +89,55 @@ function TennisDetailOverlay({ item, onClose, s }) {
     </div>, document.querySelector('.dashboard-shell') || document.body);
 }
 
+function DetailOverlayCoupleGroup({ item, onClose, s }) {
+  if (!item) return null;
+  const isCouple = item.kind === 'couple';
+  return createPortal(
+    <div className="db-overlay" onClick={onClose} style={{ overflowY: 'auto', alignItems: 'flex-start' }}>
+      <div className="db-modal" onClick={(e) => e.stopPropagation()} style={{ width: 'min(540px,100%)', margin: '24px auto' }}>
+        <button className="db-icon-btn" onClick={onClose} style={{ position: 'absolute', top: 16, right: 16 }} aria-label="Close">
+          <DashboardIcon name="close" style={{ width: 16, height: 16 }} />
+        </button>
+
+        <div style={{ width: 60, height: 60, borderRadius: '50%', display: 'grid', placeItems: 'center', fontSize: 28, color: 'var(--db-gold-2)', background: 'radial-gradient(circle,hsl(45 70% 50% / 0.2),transparent 70%)', border: '1px solid var(--db-border-2)', marginBottom: 18 }}>
+          ✦
+        </div>
+        <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 24, lineHeight: 1.2, marginBottom: 6 }}>
+          {item.people?.slice(0,2).map(p => p.name).join(' ✦ ')}
+          {item.people?.length > 2 ? ` +${item.people.length - 2}` : ''}
+        </h2>
+        <p className="db-m-desc">
+          <span className="db-kind-pill">{isCouple ? s.pillCouple : s.pillGroup}</span>
+          &nbsp;· {item.createdAt ? fmtDate(item.createdAt) : ''}
+        </p>
+
+        <div className="db-card" style={{ padding: 22, background: 'var(--db-card)', marginBottom: 14, textAlign: 'center' }}>
+          <div className="db-muted" style={{ fontSize: 11, letterSpacing: '.08em', marginBottom: 4 }}>RESONANCIA COMBINADA</div>
+          <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 56, fontWeight: 700, color: 'var(--db-gold-2)', lineHeight: 1 }}>
+            {item.group?.resonance ?? '—'}%
+          </div>
+        </div>
+
+        <div className="db-stack" style={{ gap: 10 }}>
+          {item.people?.map((p, i) => (
+            <div key={i} className="db-card" style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div style={{ width: 40, height: 40, borderRadius: '50%', display: 'grid', placeItems: 'center', fontSize: 20, background: 'hsl(45 70% 50%/0.1)', border: '1px solid var(--db-border-2)', flexShrink: 0 }}>
+                {p.seal?.glyph || '✦'}
+              </div>
+              <div>
+                <div style={{ fontWeight: 600, fontSize: 14 }}>{p.name}</div>
+                <div style={{ fontSize: 12, color: 'var(--db-muted-2)' }}>{p.seal?.name} · {p.tone?.name}</div>
+                <div style={{ fontSize: 11, color: 'var(--db-muted-2)' }}>{p.elementDisplay?.label || p.element}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>,
+    document.querySelector('.dashboard-shell') || document.body
+  );
+}
+
 function DetailOverlay({ item, onClose, openPayment, setSection, s, sb }) {
   if (!item) return null;
   const c = item.code;
@@ -190,9 +239,11 @@ export default function HistorialSection() {
   const sb = t('dashboard.sidebar');
   const [detail, setDetail] = useState(null);
   const [tennisDetail, setTennisDetail] = useState(null);
+  const [groupDetail, setGroupDetail] = useState(null);
 
   const openItem = (item) => {
     if (item.kind === 'tennis') setTennisDetail(item);
+    else if (item.kind === 'couple' || item.kind === 'group') setGroupDetail(item);
     else setDetail(item);
   };
 
@@ -304,6 +355,14 @@ export default function HistorialSection() {
         <TennisDetailOverlay
           item={tennisDetail}
           onClose={() => setTennisDetail(null)}
+          s={s}
+        />
+      )}
+
+      {groupDetail && (
+        <DetailOverlayCoupleGroup
+          item={groupDetail}
+          onClose={() => setGroupDetail(null)}
           s={s}
         />
       )}
