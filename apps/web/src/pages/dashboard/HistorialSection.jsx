@@ -91,7 +91,7 @@ function TennisDetailOverlay({ item, onClose, s }) {
     </div>, document.querySelector('.dashboard-shell') || document.body);
 }
 
-function DetailOverlayCoupleGroup({ item, onClose, openPayment, s }) {
+function DetailOverlayCoupleGroup({ item, onClose, s }) {
   if (!item) return null;
   const { user } = useAuth();
   const isCouple = item.kind === 'couple';
@@ -137,21 +137,32 @@ function DetailOverlayCoupleGroup({ item, onClose, openPayment, s }) {
           ))}
         </div>
 
-        {!hasPurchased && openPayment && (
-          <button
-            className="db-btn db-btn-gold"
-            style={{ width: '100%', marginTop: 18 }}
-            onClick={() => {
-              const pricing = relationPricing(item.kind, item.people?.length || 2);
-              onClose();
-              openPayment({ type: isCouple ? 'couple_report' : 'group_report', link: pricing.link, glyph: '✦', desc: isCouple ? s.buyCouple : s.buyGroup });
-            }}
-          >
-            <span className="db-shine" />
-            <DashboardIcon name="lock" style={{ width: 16, height: 16 }} />
-            {isCouple ? s.buyCouple : s.buyGroup}
-          </button>
-        )}
+        {!hasPurchased && (() => {
+          const pricing = relationPricing(item.kind, item.people?.length || 2);
+          return (
+            <div className="db-card" style={{ padding: '20px 22px', marginTop: 18, textAlign: 'center' }}>
+              <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 36, fontWeight: 700, color: 'var(--db-gold-2)', lineHeight: 1, marginBottom: 4 }}>
+                {pricing?.price?.display}
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--db-muted-2)', marginBottom: 16 }}>
+                pago único · acceso de por vida
+              </div>
+              <button
+                className="db-btn db-btn-gold"
+                style={{ width: '100%' }}
+                onClick={() => {
+                  const url = user?.id ? `${pricing.link}?client_reference_id=${user.id}` : pricing.link;
+                  onClose();
+                  window.location.href = url;
+                }}
+              >
+                <span className="db-shine" />
+                <DashboardIcon name="lock" style={{ width: 16, height: 16 }} />
+                {isCouple ? s.buyCouple : s.buyGroup}
+              </button>
+            </div>
+          );
+        })()}
       </div>
     </div>,
     document.querySelector('.dashboard-shell') || document.body
@@ -383,7 +394,6 @@ export default function HistorialSection() {
         <DetailOverlayCoupleGroup
           item={groupDetail}
           onClose={() => setGroupDetail(null)}
-          openPayment={openPayment}
           s={s}
         />
       )}
