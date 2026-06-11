@@ -184,6 +184,14 @@ function DashboardInner() {
               if (!adv?.a) return null;
               return { id: r.id, kind: 'tennis', code: adv.a, codeB: adv.b, adv, createdAt: new Date(r.createdAt).getTime() };
             }
+            if (r.input?.kind === 'couple' || r.input?.kind === 'group') {
+              const people = (r.result?.people || []).map((p, i) => {
+                const name = r.input?.people?.[i]?.name || '—';
+                try { return enrichCode(p, name, lang); } catch { return null; }
+              }).filter(Boolean);
+              if (!people.length) return null;
+              return { id: r.id, kind: r.input.kind, people, group: r.result?.group, pairs: r.result?.pairs, createdAt: new Date(r.createdAt).getTime() };
+            }
             const kind = r.input?.kind === 'compat' ? 'compat' : 'personal';
             const enriched = enrichCode(r.result, r.input?.name || '—', lang);
             const resonance = (kind === 'compat' && uCode) ? computeResonance(uCode, enriched, lang) : null;

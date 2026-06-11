@@ -211,15 +211,23 @@ export default function HistorialSection() {
           </div>
           <h3>{s.emptyTitle}</h3>
           <p>{s.emptyDesc}</p>
-          <button
-            className="db-btn db-btn-gold"
-            style={{ marginTop: 8 }}
-            onClick={() => setSection('compatibilidad')}
-          >
-            <span className="db-shine" />
-            <DashboardIcon name="infinity" style={{ width: 16, height: 16 }} />
-            {s.emptyBtn}
-          </button>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center', marginTop: 8 }}>
+            <button
+              className="db-btn db-btn-gold"
+              onClick={() => setSection('compatibilidad')}
+            >
+              <span className="db-shine" />
+              <DashboardIcon name="infinity" style={{ width: 16, height: 16 }} />
+              {s.emptyBtn}
+            </button>
+            <button
+              className="db-btn db-btn-ghost"
+              onClick={() => setSection('conjuntos')}
+            >
+              <DashboardIcon name="users" style={{ width: 16, height: 16 }} />
+              {s.emptyBtn2}
+            </button>
+          </div>
         </div>
       ) : (
         <div className="db-hist-list">
@@ -228,25 +236,37 @@ export default function HistorialSection() {
               <div className="db-hist-seal" style={{ display: 'grid', placeItems: 'center' }}>
                 {item.kind === 'tennis'
                   ? <MdSportsTennis size={22} style={{ color: 'var(--db-gold-2)' }} />
-                  : item.code?.seal?.glyph || '✦'}
+                  : (item.kind === 'couple' || item.kind === 'group')
+                    ? <span style={{ fontSize: 18 }}>✦</span>
+                    : item.code?.seal?.glyph || '✦'}
               </div>
               <div className="db-hist-main">
                 <div className="db-hn">
                   {item.kind === 'tennis'
                     ? <>{item.code?.name} <span style={{ color: 'var(--db-muted)', fontWeight: 400 }}>vs</span> {item.codeB?.name}</>
-                    : item.code?.name || '—'}
+                    : (item.kind === 'couple' || item.kind === 'group')
+                      ? <>{item.people?.slice(0,2).map(p => p.name).join(' ✦ ')}{item.people?.length > 2 ? ` +${item.people.length - 2}` : ''}</>
+                      : item.code?.name || '—'}
                   <span className="db-kind-pill">
-                    {item.kind === 'personal' ? s.pillPersonal : item.kind === 'tennis' ? s.pillTennis : s.pillCompat}
+                    {item.kind === 'personal' ? s.pillPersonal
+                      : item.kind === 'tennis' ? s.pillTennis
+                      : item.kind === 'couple' ? s.pillCouple
+                      : item.kind === 'group'  ? s.pillGroup
+                      : s.pillCompat}
                   </span>
                 </div>
                 <div className="db-hmeta">
                   {item.kind === 'tennis'
                     ? <>{item.adv?.combined?.glyph} {item.adv?.combined?.name} · {item.createdAt ? fmtDate(item.createdAt, lang) : ''}</>
-                    : <>{item.code?.archetype} · {item.createdAt ? fmtDate(item.createdAt, lang) : ''}{item.resonance ? ` · ${item.resonance.level}% ${item.resonance.label}` : ''}</>}
+                    : (item.kind === 'couple' || item.kind === 'group')
+                      ? <>{item.group?.resonance}% resonancia · {item.createdAt ? fmtDate(item.createdAt, lang) : ''}</>
+                      : <>{item.code?.archetype} · {item.createdAt ? fmtDate(item.createdAt, lang) : ''}{item.resonance ? ` · ${item.resonance.level}% ${item.resonance.label}` : ''}</>}
                 </div>
               </div>
               <div className="db-hist-num">
-                {item.kind === 'tennis' ? item.adv?.final?.glyph || '✦' : item.code?.solarStr || '—'}
+                {item.kind === 'tennis' ? item.adv?.final?.glyph || '✦'
+                  : (item.kind === 'couple' || item.kind === 'group') ? `${item.group?.resonance ?? '—'}%`
+                  : item.code?.solarStr || '—'}
               </div>
               <div className="db-hist-actions" onClick={(e) => e.stopPropagation()}>
                 <button

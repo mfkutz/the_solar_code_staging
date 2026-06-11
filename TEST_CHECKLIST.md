@@ -4,8 +4,8 @@
 - [x] Homepage — formulario "únete a los 144.000" con CountrySelect
 - [x] Calculadora — formulario → página de resultado
 - [x] Resultado personal — guardar lectura (sin login → modal auth → guarda)
-- [ ] Resultado personal — desbloquear informe (sin login → modal auth → Stripe)
-- [ ] Resultado personal — desbloquear informe (con login → Stripe con `client_reference_id`)
+- [x] Resultado personal — desbloquear informe (sin login → modal auth → Stripe)
+- [x] Resultado personal — desbloquear informe (con login → Stripe con `client_reference_id`)
 - [ ] Formulario pareja/grupo → página de resultado
 - [ ] Resultado relacional — desbloquear informe (sin login → modal auth → Stripe)
 - [ ] Resultado relacional — desbloquear informe (con login → Stripe)
@@ -24,7 +24,7 @@
 - [ ] Ajustes — editar perfil
 
 ## WEBHOOK / STRIPE
-- [ ] Compra informe completo → `fullReportPurchased = true` en DB
+- [x] Compra informe completo → `fullReportPurchased = true` en DB
 - [ ] Compra informe pareja → `coupleReportPurchased = true` en DB
 - [ ] Compra informe grupo → `groupReportPurchased = true` en DB
 - [ ] Compra créditos tenis → `tennisCredits` se incrementa en DB
