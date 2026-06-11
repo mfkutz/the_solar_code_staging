@@ -75,9 +75,14 @@ export default function DashboardSidebar({ route, onNav, open, onClose, members,
       <div className="db-sb-foot">
         <div className="db-member-chip">
           <div className="db-seal-circle">{sealGlyph}</div>
-          <div className="db-mtxt">
+          <div className="db-mtxt" style={{ minWidth: 0 }}>
             <div className="db-mt-1">{sb.memberChip}</div>
             <div className="db-mt-2">{user?.name?.split(' ')[0] || (lang === 'es' ? 'Anónimo' : 'Anonymous')}</div>
+            {user?.email && (
+              <div style={{ fontSize: 11, color: 'var(--db-muted-2)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: 1 }}>
+                {user.email}
+              </div>
+            )}
           </div>
         </div>
         <div className="db-live-counter">

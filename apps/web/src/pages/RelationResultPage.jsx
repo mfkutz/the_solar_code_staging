@@ -66,7 +66,7 @@ const RelationResultPage = () => {
   const handleUnlock = () => {
     if (!user) {
       pendingUnlock.current = true;
-      openAuth('register', null);
+      openAuth('email', null);
       return;
     }
     if (pricing.link) {

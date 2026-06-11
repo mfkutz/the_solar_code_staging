@@ -97,7 +97,7 @@ const ResultPage = () => {
     if (saved) return;
     if (!user) {
       pendingSave.current = true;
-      openAuth('login', null, { name });
+      openAuth('email', null, { name, country: params.get('country') || '' });
       return;
     }
     saveReading();
@@ -141,7 +141,7 @@ const ResultPage = () => {
     window.localStorage.setItem(REPORT_STORAGE_KEY, JSON.stringify(result.input));
     if (!user) {
       pendingUnlock.current = true;
-      openAuth('register', null);
+      openAuth('email', null);
       return;
     }
     if (PAYMENT_LINKS.fullReport) {

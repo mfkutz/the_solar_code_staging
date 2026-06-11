@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { api } from '@/lib/api.js';
+import PasswordInput from '@/components/PasswordInput.jsx';
 
 export default function ResetPasswordPage() {
   const [params] = useSearchParams();
@@ -52,8 +53,7 @@ export default function ResetPasswordPage() {
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ fontSize: 13, fontWeight: 500, color: 'hsl(var(--foreground))' }}>Nueva contraseña</label>
-              <input
-                type="password"
+              <PasswordInput
                 required
                 minLength={8}
                 value={password}
@@ -64,8 +64,7 @@ export default function ResetPasswordPage() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ fontSize: 13, fontWeight: 500, color: 'hsl(var(--foreground))' }}>Confirmá la contraseña</label>
-              <input
-                type="password"
+              <PasswordInput
                 required
                 minLength={8}
                 value={confirm}

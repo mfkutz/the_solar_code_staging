@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import CountrySelect from '@/components/CountrySelect.jsx';
+import PasswordInput from '@/components/PasswordInput.jsx';
 import { useI18n } from '@/i18n/I18nProvider.jsx';
 import { useAuth } from '@/auth/AuthProvider.jsx';
 import { api } from '@/lib/api.js';
@@ -28,7 +29,7 @@ export default function AuthDialog() {
   // Reset each time the dialog opens.
   useEffect(() => {
     if (authOpen) {
-      setMode(authMode === 'forgot' ? 'forgot' : 'email');
+      setMode(['login', 'register', 'forgot'].includes(authMode) ? authMode : 'email');
       setName('');
       setCountry('');
       setEmail('');
@@ -50,6 +51,7 @@ export default function AuthDialog() {
         setEmailLocked(true);
         setNewAccount(!exists);
         if (!exists && authHint?.name) setName(authHint.name);
+        if (!exists && authHint?.country) setCountry(authHint.country);
         setMode(exists ? 'login' : 'register');
         return;
       }
@@ -166,7 +168,9 @@ export default function AuthDialog() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={a.emailPh}
                 autoComplete="email"
-                autoFocus={mode === 'email'}
+                autoCapitalize="none"
+                autoCorrect="off"
+                autoFocus={mode === 'email' || (mode === 'login' && !emailLocked)}
               />
             )}
           </div>
@@ -184,16 +188,16 @@ export default function AuthDialog() {
                   </button>
                 )}
               </div>
-              <Input
+              <PasswordInput
                 id="auth-password"
-                type="password"
                 required
                 minLength={8}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={a.passwordPh}
                 autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-                autoFocus={mode === 'login'}
+                autoFocus={mode === 'login' && emailLocked}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               />
             </div>
           )}

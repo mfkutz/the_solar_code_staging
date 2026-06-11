@@ -3,6 +3,7 @@ import { useAuth } from '@/auth/AuthProvider.jsx';
 import { useI18n } from '@/i18n/I18nProvider.jsx';
 import { api } from '@/lib/api.js';
 import { DashCtx } from './DashCtx.js';
+import PasswordInput from '@/components/PasswordInput.jsx';
 import CountrySelect from '@/components/CountrySelect.jsx';
 import DashboardIcon from '@/components/dashboard/DashboardIcon.jsx';
 
@@ -175,9 +176,8 @@ export default function AjustesSection() {
           <div className="db-stack" style={{ gap: 16, marginBottom: 22 }}>
             <div className="db-field">
               <label>{s.pwdCurrent}</label>
-              <input
+              <PasswordInput
                 className="db-input"
-                type="password"
                 value={pwd.current}
                 onChange={(e) => setPwd((p) => ({ ...p, current: e.target.value }))}
                 placeholder="••••••••"
@@ -186,9 +186,8 @@ export default function AjustesSection() {
             </div>
             <div className="db-field">
               <label>{s.pwdNew}</label>
-              <input
+              <PasswordInput
                 className="db-input"
-                type="password"
                 value={pwd.next}
                 onChange={(e) => setPwd((p) => ({ ...p, next: e.target.value }))}
                 placeholder={s.pwdNewPh}
@@ -197,9 +196,8 @@ export default function AjustesSection() {
             </div>
             <div className="db-field">
               <label>{s.pwdConfirm}</label>
-              <input
+              <PasswordInput
                 className="db-input"
-                type="password"
                 value={pwd.confirm}
                 onChange={(e) => setPwd((p) => ({ ...p, confirm: e.target.value }))}
                 placeholder={s.pwdConfirmPh}
