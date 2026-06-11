@@ -2,10 +2,12 @@ import { useContext, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { DashCtx } from './DashCtx.js';
 import { useI18n } from '@/i18n/I18nProvider.jsx';
+import { useAuth } from '@/auth/AuthProvider.jsx';
 import DashboardIcon from '@/components/dashboard/DashboardIcon.jsx';
 import HarmonyMeter from '@/components/dashboard/HarmonyMeter.jsx';
 import { MdSportsTennis } from 'react-icons/md';
 import { fmtDate } from '@/lib/dashboardData.js';
+import { relationPricing } from '@/config/payments.js';
 
 function TennisDetailOverlay({ item, onClose, s }) {
   const { adv, code, codeB, createdAt } = item;
@@ -89,9 +91,11 @@ function TennisDetailOverlay({ item, onClose, s }) {
     </div>, document.querySelector('.dashboard-shell') || document.body);
 }
 
-function DetailOverlayCoupleGroup({ item, onClose, s }) {
+function DetailOverlayCoupleGroup({ item, onClose, openPayment, s }) {
   if (!item) return null;
+  const { user } = useAuth();
   const isCouple = item.kind === 'couple';
+  const hasPurchased = isCouple ? user?.coupleReportPurchased : user?.groupReportPurchased;
   return createPortal(
     <div className="db-overlay" onClick={onClose} style={{ overflowY: 'auto', alignItems: 'flex-start' }}>
       <div className="db-modal" onClick={(e) => e.stopPropagation()} style={{ width: 'min(540px,100%)', margin: '24px auto' }}>
@@ -132,6 +136,22 @@ function DetailOverlayCoupleGroup({ item, onClose, s }) {
             </div>
           ))}
         </div>
+
+        {!hasPurchased && openPayment && (
+          <button
+            className="db-btn db-btn-gold"
+            style={{ width: '100%', marginTop: 18 }}
+            onClick={() => {
+              const pricing = relationPricing(item.kind, item.people?.length || 2);
+              onClose();
+              openPayment({ type: isCouple ? 'couple_report' : 'group_report', link: pricing.link, glyph: '✦', desc: isCouple ? s.buyCouple : s.buyGroup });
+            }}
+          >
+            <span className="db-shine" />
+            <DashboardIcon name="lock" style={{ width: 16, height: 16 }} />
+            {isCouple ? s.buyCouple : s.buyGroup}
+          </button>
+        )}
       </div>
     </div>,
     document.querySelector('.dashboard-shell') || document.body
@@ -363,6 +383,7 @@ export default function HistorialSection() {
         <DetailOverlayCoupleGroup
           item={groupDetail}
           onClose={() => setGroupDetail(null)}
+          openPayment={openPayment}
           s={s}
         />
       )}
