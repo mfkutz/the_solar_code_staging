@@ -7,7 +7,7 @@ import DashboardIcon from '@/components/dashboard/DashboardIcon.jsx';
 import HarmonyMeter from '@/components/dashboard/HarmonyMeter.jsx';
 import { MdSportsTennis } from 'react-icons/md';
 import { fmtDate } from '@/lib/dashboardData.js';
-import { relationPricing } from '@/config/payments.js';
+import { relationPricing, RELATIONAL_PRODUCTS } from '@/config/payments.js';
 
 function TennisDetailOverlay({ item, onClose, s }) {
   const { adv, code, codeB, createdAt } = item;
