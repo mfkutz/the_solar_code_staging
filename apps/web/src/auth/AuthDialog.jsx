@@ -202,21 +202,6 @@ export default function AuthDialog() {
             </div>
           )}
 
-          {mode === 'forgot' && (
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="auth-email-forgot">{a.email}</Label>
-              <Input
-                id="auth-email-forgot"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={a.emailPh}
-                autoComplete="email"
-              />
-            </div>
-          )}
-
           {/* "No account found" note */}
           {mode === 'register' && newAccount && (
             <p className="text-xs text-muted-foreground -mt-1">{a.newAccountNote}</p>
