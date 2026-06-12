@@ -11,7 +11,7 @@ import { useAuth } from '@/auth/AuthProvider.jsx';
 import { api } from '@/lib/api.js';
 
 export default function AuthDialog() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const navigate = useNavigate();
   const { authOpen, authMode, authRedirect, authHint, closeAuth, login, register } = useAuth();
 
@@ -56,7 +56,7 @@ export default function AuthDialog() {
         return;
       }
       if (mode === 'forgot') {
-        await api.post('/auth/forgot-password', { email });
+        await api.post('/auth/forgot-password', { email, lang });
         setMode('forgot-sent');
         return;
       }

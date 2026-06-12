@@ -3,14 +3,34 @@ import { Resend } from 'resend';
 const FROM = process.env.EMAIL_FROM || 'The Solar Code <noreply@resend.dev>';
 const APP_URL = process.env.APP_URL || 'http://localhost:3000';
 
-export async function sendPasswordReset({ to, token, name }) {
+const COPY = {
+  es: {
+    subject: 'Recuperá tu contraseña — The Solar Code',
+    greeting: (name) => `Hola${name ? ` ${name}` : ''},`,
+    body: 'Recibimos una solicitud para restablecer la contraseña de tu cuenta. Hacé clic en el botón para elegir una nueva:',
+    btn: 'Restablecer contraseña',
+    expiry: 'Este enlace expira en <strong>1 hora</strong>. Si no pediste este cambio, ignorá este email — tu contraseña no se modificará.',
+    copy: 'O copiá este enlace en tu navegador:',
+  },
+  en: {
+    subject: 'Reset your password — The Solar Code',
+    greeting: (name) => `Hi${name ? ` ${name}` : ''},`,
+    body: 'We received a request to reset the password for your account. Click the button below to choose a new one:',
+    btn: 'Reset password',
+    expiry: 'This link expires in <strong>1 hour</strong>. If you didn\'t request this, you can safely ignore this email — your password won\'t change.',
+    copy: 'Or copy this link into your browser:',
+  },
+};
+
+export async function sendPasswordReset({ to, token, name, lang = 'es' }) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   const link = `${APP_URL}/reset-password?token=${token}`;
+  const c = COPY[lang] || COPY.es;
 
   await resend.emails.send({
     from: FROM,
     to,
-    subject: 'Recuperá tu contraseña — The Solar Code',
+    subject: c.subject,
     html: `
       <div style="font-family:Georgia,serif;max-width:520px;margin:0 auto;color:#1a1a2e;padding:32px 24px">
         <div style="text-align:center;margin-bottom:28px">
@@ -21,26 +41,25 @@ export async function sendPasswordReset({ to, token, name }) {
         </div>
 
         <p style="font-size:16px;line-height:1.6;margin-bottom:16px">
-          Hola${name ? ` ${name}` : ''},
+          ${c.greeting(name)}
         </p>
         <p style="font-size:15px;line-height:1.6;color:#444;margin-bottom:28px">
-          Recibimos una solicitud para restablecer la contraseña de tu cuenta.
-          Hacé clic en el botón para elegir una nueva:
+          ${c.body}
         </p>
 
         <div style="text-align:center;margin-bottom:28px">
           <a href="${link}"
              style="display:inline-block;background:#c9a84c;color:#fff;font-size:15px;font-weight:600;
                     padding:14px 32px;border-radius:8px;text-decoration:none;letter-spacing:.04em">
-            Restablecer contraseña
+            ${c.btn}
           </a>
         </div>
 
         <p style="font-size:13px;color:#888;line-height:1.6;margin-bottom:8px">
-          Este enlace expira en <strong>1 hora</strong>. Si no pediste este cambio, ignorá este email — tu contraseña no se modificará.
+          ${c.expiry}
         </p>
         <p style="font-size:12px;color:#aaa">
-          O copiá este enlace en tu navegador:<br/>
+          ${c.copy}<br/>
           <span style="color:#c9a84c;word-break:break-all">${link}</span>
         </p>
       </div>

@@ -205,7 +205,7 @@ router.patch('/profile', requireAuth, async (req, res) => {
 // Request a password reset link. Always responds 200 to avoid leaking which
 // emails are registered. Invalidates any previous unused tokens for that user.
 router.post('/forgot-password', async (req, res) => {
-  const schema = z.object({ email: z.string().email() });
+  const schema = z.object({ email: z.string().email(), lang: z.enum(['es', 'en']).optional() });
   const parsed = schema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: 'Email inválido' });
 
@@ -217,7 +217,7 @@ router.post('/forgot-password', async (req, res) => {
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
     await prisma.passwordReset.create({ data: { userId: user.id, token, expiresAt } });
 
-    await sendPasswordReset({ to: user.email, token, name: user.name }).catch(() => {});
+    await sendPasswordReset({ to: user.email, token, name: user.name, lang: parsed.data.lang || 'es' }).catch(() => {});
   }
 
   res.json({ ok: true });
