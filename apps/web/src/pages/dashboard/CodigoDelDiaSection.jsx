@@ -77,6 +77,7 @@ export default function CodigoDelDiaSection() {
         <AttrCard glyph={d.toneNum ?? ((d.kin - 1) % 13) + 1} label={s.cards.tone} value={d.tone.name} meta={d.tone.action} color="var(--db-gold-2)" />
         <AttrCard glyph={d.elementDisplay.glyph} label={s.cards.element} value={d.elementDisplay.label} color={elementDot(d.element)} />
         <AttrCard glyph="◓" label={s.cards.kin} value={d.kin} meta={s.cards.kinOf} />
+        <AttrCard glyph="◎" label={s.cards.solarNum} value={d.solarStr} meta={s.cards.solarOf} color="var(--db-gold-2)" />
       </div>
 
       {/* Resonance with user */}

@@ -36,6 +36,7 @@ const BirthForm = () => {
   const navigate = useNavigate();
   const [data, setData] = useState({ name: '', birthdate: '', time: '', country: '', city: '' });
   const [calOpen, setCalOpen] = useState(false);
+  const [optionalOpen, setOptionalOpen] = useState(false);
 
   const today = new Date();
   const dateLocale = lang === 'es' ? esLocale : enUS;
@@ -73,15 +74,11 @@ const BirthForm = () => {
         <p className="text-muted-foreground">{t('form.subtitle')}</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div className="md:col-span-2">
-          <Label htmlFor="name">{t('form.name')}</Label>
-          <Input id="name" name="name" value={data.name} onChange={handleChange}
-            className="mt-2 bg-input" placeholder={t('form.namePh')} />
-        </div>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
 
+        {/* Date — primary field */}
         <div>
-          <Label htmlFor="birthdate">{t('form.birthdate')} *</Label>
+          <Label htmlFor="birthdate" className="text-base">{t('form.birthdate')}</Label>
           <Popover open={calOpen} onOpenChange={setCalOpen}>
             <PopoverTrigger asChild>
               <Button
@@ -89,7 +86,7 @@ const BirthForm = () => {
                 type="button"
                 variant="outline"
                 className={cn(
-                  'mt-2 w-full justify-start bg-input font-normal',
+                  'mt-2 w-full justify-start bg-input font-normal text-base h-12',
                   !selectedDate && 'text-muted-foreground',
                 )}
               >
@@ -116,32 +113,74 @@ const BirthForm = () => {
           </Popover>
         </div>
 
-        <div>
-          <Label htmlFor="time">
-            {t('form.time')} <span className="text-muted-foreground font-normal">({t('common.optional')})</span>
-          </Label>
-          <Input id="time" name="time" type="time" value={data.time} onChange={handleChange}
-            className="mt-2 bg-input" />
-          <p className="text-xs text-muted-foreground mt-1">{t('form.timeHint')}</p>
-        </div>
+        {/* Optional details collapsible */}
+        <div className="border border-border rounded-xl overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setOptionalOpen(o => !o)}
+            className="w-full flex items-center justify-between px-4 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors"
+          >
+            <span className="flex items-center gap-2">
+              <span>{lang === 'es' ? 'Más datos' : 'More details'}</span>
+              <span className="text-xs opacity-60">({t('common.optional')})</span>
+            </span>
+            <svg
+              width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              style={{ transform: optionalOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform .2s' }}
+            >
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
 
-        <div>
-          <Label>{t('form.country')}</Label>
-          <div className="mt-2">
-            <CountrySelect
-              value={data.country}
-              onChange={(val) => setData((prev) => ({ ...prev, country: val }))}
-            />
-          </div>
-        </div>
-        <div>
-          <Label htmlFor="city">{t('form.city')}</Label>
-          <Input id="city" name="city" value={data.city} onChange={handleChange}
-            className="mt-2 bg-input" placeholder={t('form.cityPh')} />
+          {optionalOpen && (
+            <div className="px-4 pb-4 pt-4 grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-border">
+              {/* Nombre — full width */}
+              <div className="md:col-span-2">
+                <Label htmlFor="name" className="flex items-baseline gap-2">
+                  {t('form.name')}
+                  <span className="text-xs text-muted-foreground font-normal">({t('common.optional')})</span>
+                </Label>
+                <Input id="name" name="name" value={data.name} onChange={handleChange}
+                  className="mt-2 bg-input" placeholder={t('form.namePh')} />
+              </div>
+              {/* País | Ciudad — juntos */}
+              <div>
+                <Label className="flex items-baseline gap-2">
+                  {t('form.country')}
+                  <span className="text-xs text-muted-foreground font-normal">({t('common.optional')})</span>
+                </Label>
+                <div className="mt-2">
+                  <CountrySelect
+                    value={data.country}
+                    onChange={(val) => setData((prev) => ({ ...prev, country: val }))}
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="city" className="flex items-baseline gap-2">
+                  {t('form.city')}
+                  <span className="text-xs text-muted-foreground font-normal">({t('common.optional')})</span>
+                </Label>
+                <Input id="city" name="city" value={data.city} onChange={handleChange}
+                  className="mt-2 bg-input" placeholder={t('form.cityPh')} />
+              </div>
+              {/* Hora — izquierda */}
+              <div>
+                <Label htmlFor="time" className="flex items-baseline gap-2">
+                  {t('form.time')}
+                  <span className="text-xs text-muted-foreground font-normal">({t('common.optional')})</span>
+                </Label>
+                <Input id="time" name="time" type="time" value={data.time} onChange={handleChange}
+                  className="mt-2 bg-input" />
+                <p className="text-xs text-muted-foreground mt-1">{t('form.timeHint')}</p>
+              </div>
+            </div>
+          )}
         </div>
 
         <Button type="submit" size="lg"
-          className="md:col-span-2 w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 active:scale-[0.98]">
+          className="w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 active:scale-[0.98]">
           {t('form.submit')}
         </Button>
       </form>
